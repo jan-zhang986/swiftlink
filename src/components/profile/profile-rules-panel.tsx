@@ -83,7 +83,7 @@ export const ProfileRulesPanel = ({ current }: Props) => {
         <Typography
           sx={{ fontSize: 16, fontWeight: 600, minWidth: 0, flexShrink: 0 }}
         >
-          {t('rules.page.title')}
+          {t('layout.components.navigation.tabs.rules')}
         </Typography>
         <Box sx={{ flex: 1, minWidth: 0 }}>
           <BaseSearchBox onSearch={(next) => setMatch(() => next)} />

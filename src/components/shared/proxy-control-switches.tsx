@@ -127,11 +127,7 @@ const SwitchRow = ({
   )
 }
 
-const ProxyControlSwitches = ({
-  label,
-  onError,
-  _noRightPadding = false,
-}: ProxySwitchProps) => {
+const ProxyControlSwitches = ({ label, onError }: ProxySwitchProps) => {
   const { t } = useTranslation()
   const { verge, mutateVerge, patchVerge } = useVerge()
   const { uninstallServiceAndStartSidecar } = useServiceUninstaller()
