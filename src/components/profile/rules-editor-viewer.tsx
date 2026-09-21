@@ -10,7 +10,6 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogTitle,
   TextField,
   Typography,
 } from '@mui/material'
@@ -38,13 +37,16 @@ import getSystem from '@/utils/get-system'
 import { isValidIpCidr } from '@/utils/network'
 import { parseYamlSafe } from '@/utils/yaml'
 
+import { CompactDialogTitle } from './compact-dialog-title'
 import {
   compactActionBtnSx,
   compactActionContainedSx,
-  compactDialogTitleSx,
+  compactDialogActionsSx,
+  compactDialogBackdropSx,
   compactEditorContentSx,
   compactEditorPaperSx,
   compactFieldInputSx,
+  compactModeToggleSx,
   compactSelectPopupIcon,
   compactSelectSlotProps,
 } from './compact-editor-dialog'
@@ -598,36 +600,29 @@ export const RulesEditorViewer = (props: Props) => {
       fullWidth
       disableEnforceFocus={!visualization}
       slotProps={{
+        backdrop: { sx: compactDialogBackdropSx },
         paper: {
           sx: compactEditorPaperSx,
         },
       }}
     >
-      <DialogTitle
-        sx={{
-          ...compactDialogTitleSx,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 1,
-        }}
+      <CompactDialogTitle
+        onClose={onClose}
+        extra={
+          <Button
+            variant="text"
+            size="small"
+            onClick={handleVisualizationToggle}
+            sx={compactModeToggleSx}
+          >
+            {visualization
+              ? t('shared.editorModes.advanced')
+              : t('shared.editorModes.visualization')}
+          </Button>
+        }
       >
         {t('rules.modals.editor.title')}
-        <Button
-          variant="outlined"
-          size="small"
-          onClick={handleVisualizationToggle}
-          sx={{
-            borderRadius: '10px',
-            textTransform: 'none',
-            fontWeight: 600,
-          }}
-        >
-          {visualization
-            ? t('shared.editorModes.advanced')
-            : t('shared.editorModes.visualization')}
-        </Button>
-      </DialogTitle>
+      </CompactDialogTitle>
 
       <DialogContent
         sx={{
@@ -907,7 +902,7 @@ export const RulesEditorViewer = (props: Props) => {
         )}
       </DialogContent>
 
-      <DialogActions sx={{ px: 2, pb: 1.5, pt: 0.75, gap: 1 }}>
+      <DialogActions sx={compactDialogActionsSx}>
         <Button onClick={onClose} variant="outlined" sx={compactActionBtnSx}>
           {t('shared.actions.cancel')}
         </Button>

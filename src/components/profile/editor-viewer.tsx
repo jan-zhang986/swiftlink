@@ -11,7 +11,6 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogTitle,
   IconButton,
 } from '@mui/material'
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
@@ -26,10 +25,12 @@ import type { MonacoEditorInstance, MonacoMarker } from '@/types/monaco'
 import debounce from '@/utils/debounce'
 import { MONACO_FONT_FAMILY } from '@/utils/font-family'
 
+import { CompactDialogTitle } from './compact-dialog-title'
 import {
   compactActionBtnSx,
   compactActionContainedSx,
-  compactDialogTitleSx,
+  compactDialogActionsSx,
+  compactDialogBackdropSx,
   compactEditorContentSx,
   compactEditorPaperSx,
 } from './compact-editor-dialog'
@@ -203,6 +204,7 @@ export const EditorViewer = ({
       maxWidth={false}
       disableEnforceFocus
       slotProps={{
+        backdrop: { sx: compactDialogBackdropSx },
         paper: {
           sx: {
             ...compactEditorPaperSx,
@@ -213,7 +215,9 @@ export const EditorViewer = ({
         },
       }}
     >
-      <DialogTitle sx={compactDialogTitleSx}>{resolvedTitle}</DialogTitle>
+      <CompactDialogTitle onClose={handleClose}>
+        {resolvedTitle}
+      </CompactDialogTitle>
 
       <DialogContent
         sx={{
@@ -315,7 +319,7 @@ export const EditorViewer = ({
         </ButtonGroup>
       </DialogContent>
 
-      <DialogActions sx={{ px: 2, pb: 1.5, pt: 0.75, gap: 1 }}>
+      <DialogActions sx={compactDialogActionsSx}>
         {!readOnly && onResetToDefault && (
           <Button
             onClick={onResetToDefault}

@@ -14,13 +14,10 @@ import {
 } from '@mui/icons-material'
 import {
   Box,
-  Button,
   ButtonBase,
   ClickAwayListener,
   Dialog,
-  DialogActions,
   DialogContent,
-  DialogTitle,
   Paper,
   Popper,
   Typography,
@@ -34,9 +31,10 @@ import { useNavigate } from 'react-router'
 import type { BaseConfig } from 'tauri-plugin-mihomo-api'
 
 import { Switch } from '@/components/base'
+import { CompactDialogTitle } from '@/components/profile/compact-dialog-title'
 import {
-  compactActionBtnSx,
-  compactDialogTitleSx,
+  compactDialogBackdropSx,
+  compactDialogBodySx,
   compactEditorPaperSx,
 } from '@/components/profile/compact-editor-dialog'
 import { useClashMode } from '@/hooks/use-clash'
@@ -1059,33 +1057,25 @@ export const CampusDashboard = () => {
         onClose={() => setToolboxPanel(null)}
         maxWidth={false}
         slotProps={{
+          backdrop: { sx: compactDialogBackdropSx },
           paper: {
             sx: {
               ...compactEditorPaperSx,
-              width: toolboxPanel === 'traffic' ? 720 : 520,
+              width: toolboxPanel === 'traffic' ? 720 : 440,
             },
           },
         }}
       >
-        <DialogTitle sx={compactDialogTitleSx}>
+        <CompactDialogTitle onClose={() => setToolboxPanel(null)}>
           {toolboxPanel === 'traffic' && t('home.page.cards.trafficStats')}
           {toolboxPanel === 'clash' && t('home.components.clashInfo.title')}
           {toolboxPanel === 'system' && t('home.components.systemInfo.title')}
-        </DialogTitle>
-        <DialogContent sx={{ px: 2, pb: 1, pt: 0 }}>
+        </CompactDialogTitle>
+        <DialogContent sx={compactDialogBodySx}>
           {toolboxPanel === 'traffic' && <EnhancedTrafficStats />}
           {toolboxPanel === 'clash' && <ClashInfoCard plain />}
           {toolboxPanel === 'system' && <SystemInfoCard plain />}
         </DialogContent>
-        <DialogActions sx={{ px: 2, pb: 1.5, pt: 0.75 }}>
-          <Button
-            onClick={() => setToolboxPanel(null)}
-            variant="outlined"
-            sx={compactActionBtnSx}
-          >
-            {t('shared.actions.close')}
-          </Button>
-        </DialogActions>
       </Dialog>
     </Box>
   )

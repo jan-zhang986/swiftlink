@@ -1,21 +1,12 @@
-import {
-  Button,
-  Chip,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Divider,
-  Typography,
-} from '@mui/material'
-import { Fragment } from 'react'
+import { Box, Chip, Dialog, DialogContent, Typography } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 
 import { BaseEmpty } from '@/components/base'
 
+import { CompactDialogTitle } from './compact-dialog-title'
 import {
-  compactActionBtnSx,
-  compactDialogTitleSx,
+  compactDialogBackdropSx,
+  compactDialogBodySx,
   compactEditorPaperSx,
 } from './compact-editor-dialog'
 
@@ -27,7 +18,6 @@ interface Props {
 
 export const LogViewer = (props: Props) => {
   const { open, logInfo, onClose } = props
-
   const { t } = useTranslation()
 
   return (
@@ -35,6 +25,7 @@ export const LogViewer = (props: Props) => {
       open={open}
       onClose={onClose}
       slotProps={{
+        backdrop: { sx: compactDialogBackdropSx },
         paper: {
           sx: {
             ...compactEditorPaperSx,
@@ -43,47 +34,62 @@ export const LogViewer = (props: Props) => {
         },
       }}
     >
-      <DialogTitle sx={compactDialogTitleSx}>
+      <CompactDialogTitle onClose={onClose}>
         {t('profiles.modals.logViewer.title')}
-      </DialogTitle>
+      </CompactDialogTitle>
 
       <DialogContent
         sx={{
-          px: 2,
-          pb: 0.75,
+          ...compactDialogBodySx,
           height: 'min(40vh, 280px)',
           overflowX: 'hidden',
           userSelect: 'text',
         }}
       >
-        {logInfo.map(([level, log]) => (
-          <Fragment key={`${level}-${log}`}>
-            <Typography color="text.secondary" component="div">
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
+          {logInfo.map(([level, log]) => (
+            <Box
+              key={`${level}-${log}`}
+              sx={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: 1,
+                px: 1.25,
+                py: 1,
+                borderRadius: '12px',
+                bgcolor: 'action.hover',
+              }}
+            >
               <Chip
                 label={level}
                 size="small"
-                variant="outlined"
-                color={
-                  level === 'error' || level === 'exception'
-                    ? 'error'
-                    : 'default'
-                }
-                sx={{ mr: 1 }}
+                sx={{
+                  height: 22,
+                  flexShrink: 0,
+                  fontWeight: 650,
+                  borderRadius: '8px',
+                  bgcolor:
+                    level === 'error' || level === 'exception'
+                      ? 'error.main'
+                      : 'action.selected',
+                  color:
+                    level === 'error' || level === 'exception'
+                      ? '#fff'
+                      : 'text.secondary',
+                  '& .MuiChip-label': { px: 0.9 },
+                }}
               />
-              {log}
-            </Typography>
-            <Divider sx={{ my: 0.5 }} />
-          </Fragment>
-        ))}
+              <Typography
+                sx={{ fontSize: 13, color: 'text.secondary', pt: 0.15 }}
+              >
+                {log}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
 
         {logInfo.length === 0 && <BaseEmpty />}
       </DialogContent>
-
-      <DialogActions sx={{ px: 2, pb: 1.5, pt: 0.75 }}>
-        <Button onClick={onClose} variant="outlined" sx={compactActionBtnSx}>
-          {t('shared.actions.close')}
-        </Button>
-      </DialogActions>
     </Dialog>
   )
 }

@@ -1,4 +1,8 @@
-import { CheckCircleOutlineRounded } from '@mui/icons-material'
+import {
+  CheckCircleOutlineRounded,
+  DataUsageRounded,
+  EventAvailableRounded,
+} from '@mui/icons-material'
 import { alpha, Box, ListItemButton, styled, Typography } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 
@@ -10,7 +14,7 @@ import {
   type ProxyGroupView,
   type ResolvedProxyMember,
 } from '@/types/proxy-view'
-import { splitProxyFlag } from '@/utils/proxy-flag'
+import { splitProxyFlag, parseSubscriptionInfo } from '@/utils/proxy-flag'
 
 import { ProxyNodeFlag } from './proxy-node-flag'
 
@@ -37,6 +41,64 @@ export const ProxyItemMini = (props: Props) => {
     member,
     group.name,
   )
+  const info = parseSubscriptionInfo(name)
+  const InfoIcon = /到期|过期|重置/.test(name)
+    ? EventAvailableRounded
+    : DataUsageRounded
+
+  if (info) {
+    return (
+      <Box
+        title={name}
+        sx={{
+          height: 64,
+          borderRadius: '16px',
+          px: 1.5,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1.25,
+          minWidth: 0,
+          bgcolor: (theme) =>
+            theme.palette.mode === 'light' ? '#ffffff' : '#282A36',
+        }}
+      >
+        <Box
+          sx={{
+            width: 32,
+            height: 32,
+            flexShrink: 0,
+            borderRadius: '10px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'primary.main',
+            bgcolor: (theme) => alpha(theme.palette.primary.main, 0.12),
+          }}
+        >
+          <InfoIcon sx={{ fontSize: 18 }} />
+        </Box>
+        <Box sx={{ minWidth: 0, flex: 1 }}>
+          <Typography
+            noWrap
+            sx={{ fontSize: 12, color: 'text.secondary', lineHeight: 1.3 }}
+          >
+            {info.label}
+          </Typography>
+          <Typography
+            noWrap
+            sx={{
+              fontSize: 15,
+              fontWeight: 700,
+              letterSpacing: '-0.03em',
+              lineHeight: 1.35,
+            }}
+          >
+            {info.value}
+          </Typography>
+        </Box>
+      </Box>
+    )
+  }
 
   return (
     <ListItemButton
@@ -52,6 +114,7 @@ export const ProxyItemMini = (props: Props) => {
           justifyContent: 'space-between',
           alignItems: 'center',
           gap: 1,
+          minWidth: 0,
         },
         ({ palette: { mode, primary } }) => {
           const bgcolor = mode === 'light' ? '#ffffff' : '#282A36'
@@ -82,7 +145,10 @@ export const ProxyItemMini = (props: Props) => {
       ]}
     >
       <ProxyNodeFlag name={name} />
-      <Box title={`${name}\n${now ?? ''}`} sx={{ overflow: 'hidden', flex: 1 }}>
+      <Box
+        title={`${name}\n${now ?? ''}`}
+        sx={{ overflow: 'hidden', flex: 1, minWidth: 0 }}
+      >
         <Box
           sx={{ display: 'flex', alignItems: 'center', gap: 0.6, minWidth: 0 }}
         >
@@ -181,7 +247,12 @@ export const ProxyItemMini = (props: Props) => {
         )}
       </Box>
       <Box
-        sx={{ ml: 0.5, color: 'primary.main', display: isPreset ? 'none' : '' }}
+        sx={{
+          ml: 0.5,
+          flexShrink: 0,
+          color: 'primary.main',
+          display: isPreset ? 'none' : '',
+        }}
       >
         {!unresolved && delayValue === -2 && (
           <Widget>
@@ -250,8 +321,10 @@ export const ProxyItemMini = (props: Props) => {
 
 const Widget = styled(Box)(({ theme: { typography } }) => ({
   padding: '2px 4px',
-  fontSize: 14,
+  fontSize: 13,
+  fontWeight: 650,
   fontFamily: typography.fontFamily,
+  fontVariantNumeric: 'tabular-nums',
   borderRadius: '8px',
 }))
 

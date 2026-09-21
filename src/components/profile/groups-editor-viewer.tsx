@@ -10,7 +10,6 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogTitle,
   InputAdornment,
   List,
   ListItem,
@@ -49,13 +48,16 @@ import type { MonacoEditorInstance } from '@/types/monaco'
 import { MONACO_FONT_FAMILY } from '@/utils/font-family'
 import { parseYamlSafe } from '@/utils/yaml'
 
+import { CompactDialogTitle } from './compact-dialog-title'
 import {
   compactActionBtnSx,
   compactActionContainedSx,
-  compactDialogTitleSx,
+  compactDialogActionsSx,
+  compactDialogBackdropSx,
   compactEditorContentSx,
   compactEditorPaperSx,
   compactFieldInputSx,
+  compactModeToggleSx,
   compactSelectPopupIcon,
   compactSelectSlotProps,
 } from './compact-editor-dialog'
@@ -504,32 +506,29 @@ export const GroupsEditorViewer = (props: Props) => {
       fullWidth
       disableEnforceFocus={!visualization}
       slotProps={{
+        backdrop: { sx: compactDialogBackdropSx },
         paper: {
           sx: compactEditorPaperSx,
         },
       }}
     >
-      <DialogTitle
-        sx={{
-          ...compactDialogTitleSx,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 1,
-        }}
+      <CompactDialogTitle
+        onClose={onClose}
+        extra={
+          <Button
+            variant="text"
+            size="small"
+            onClick={handleVisualizationToggle}
+            sx={compactModeToggleSx}
+          >
+            {visualization
+              ? t('shared.editorModes.advanced')
+              : t('shared.editorModes.visualization')}
+          </Button>
+        }
       >
         {t('profiles.modals.groupsEditor.title')}
-        <Button
-          variant="contained"
-          size="small"
-          onClick={handleVisualizationToggle}
-          sx={compactActionContainedSx}
-        >
-          {visualization
-            ? t('shared.editorModes.advanced')
-            : t('shared.editorModes.visualization')}
-        </Button>
-      </DialogTitle>
+      </CompactDialogTitle>
 
       <DialogContent sx={compactEditorContentSx}>
         {visualization ? (
@@ -1139,7 +1138,7 @@ export const GroupsEditorViewer = (props: Props) => {
         )}
       </DialogContent>
 
-      <DialogActions sx={{ px: 2, pb: 1.5, pt: 0.75, gap: 1 }}>
+      <DialogActions sx={compactDialogActionsSx}>
         <Button onClick={onClose} variant="outlined" sx={compactActionBtnSx}>
           {t('shared.actions.cancel')}
         </Button>

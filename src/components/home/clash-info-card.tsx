@@ -1,5 +1,5 @@
 import { DeveloperBoardOutlined } from '@mui/icons-material'
-import { Divider, Stack, Typography } from '@mui/material'
+import { Box, Stack, Typography } from '@mui/material'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -12,6 +12,7 @@ import {
   useSystemData,
 } from '@/providers/app-data-context'
 
+import { campusInfoRowSx } from './campus-panel'
 import { EnhancedCard } from './enhanced-card'
 
 // 将毫秒转换为时:分:秒格式的函数
@@ -39,51 +40,41 @@ export const ClashInfoCard = ({ plain = false }: { plain?: boolean }) => {
     if (!clashConfig) return null
 
     return (
-      <Stack spacing={1.5}>
-        <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
-          <Typography variant="body2" color="text.secondary">
-            {t('home.components.clashInfo.fields.coreVersion')}
-          </Typography>
-          <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
-            {clashVersion || '-'}
-          </Typography>
-        </Stack>
-        <Divider />
-        <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
-          <Typography variant="body2" color="text.secondary">
-            {t('home.components.clashInfo.fields.systemProxyAddress')}
-          </Typography>
-          <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
-            {systemProxyAddress}
-          </Typography>
-        </Stack>
-        <Divider />
-        <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
-          <Typography variant="body2" color="text.secondary">
-            {t('home.components.clashInfo.fields.mixedPort')}
-          </Typography>
-          <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
-            {displayedMixedPort}
-          </Typography>
-        </Stack>
-        <Divider />
-        <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
-          <Typography variant="body2" color="text.secondary">
-            {t('home.components.clashInfo.fields.uptime')}
-          </Typography>
-          <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
-            {formattedUptime}
-          </Typography>
-        </Stack>
-        <Divider />
-        <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
-          <Typography variant="body2" color="text.secondary">
-            {t('home.components.clashInfo.fields.rulesCount')}
-          </Typography>
-          <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
-            {rules.length}
-          </Typography>
-        </Stack>
+      <Stack spacing={0.75}>
+        {(
+          [
+            [
+              t('home.components.clashInfo.fields.coreVersion'),
+              clashVersion || '-',
+            ],
+            [
+              t('home.components.clashInfo.fields.systemProxyAddress'),
+              systemProxyAddress,
+            ],
+            [
+              t('home.components.clashInfo.fields.mixedPort'),
+              displayedMixedPort,
+            ],
+            [t('home.components.clashInfo.fields.uptime'), formattedUptime],
+            [t('home.components.clashInfo.fields.rulesCount'), rules.length],
+          ] as const
+        ).map(([label, value]) => (
+          <Box key={label} sx={campusInfoRowSx}>
+            <Typography sx={{ fontSize: 13, color: 'text.secondary' }}>
+              {label}
+            </Typography>
+            <Typography
+              sx={{
+                fontSize: 13,
+                fontWeight: 650,
+                minWidth: 0,
+                textAlign: 'right',
+              }}
+            >
+              {value}
+            </Typography>
+          </Box>
+        ))}
       </Stack>
     )
   }, [

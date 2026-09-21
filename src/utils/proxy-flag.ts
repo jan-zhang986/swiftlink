@@ -101,14 +101,29 @@ const isoToFlag = (iso: string) => {
   )
 }
 
+const INFO_NAME_RE =
+  /剩余流量|流量剩余|已用流量|套餐到期|到期时间|过期时间|重置时间|距离下次|官网|客服|使用须知|最新消息|订阅信息/
+
+export const parseSubscriptionInfo = (name: string) => {
+  if (!INFO_NAME_RE.test(name)) return null
+  const parts = name.split(/[:：]/)
+  const label = (parts[0] ?? name).trim()
+  const value = parts.slice(1).join(':').trim()
+  return { label, value: value || name }
+}
+
 const inferIso = (name: string) => {
+  if (parseSubscriptionInfo(name)) return ''
   for (const [keyword, iso] of COUNTRY_KEYWORDS) {
     if (name.includes(keyword)) return iso
   }
-  const token = name.match(/(?:^|[^A-Za-z])([A-Z]{2})(?:[^A-Za-z]|$)/)
+  const token = name.match(/(?:^|[^A-Za-z0-9.])([A-Z]{2})(?:[^A-Za-z]|$)/)
   const iso = token?.[1]
-  if (iso && ISO_CODES.has(iso)) return iso
-  return ''
+  if (!iso || !ISO_CODES.has(iso) || token.index == null) return ''
+  const isoIndex = token.index + token[0].indexOf(iso)
+  const prev = isoIndex > 0 ? name[isoIndex - 1] : ''
+  if (prev && /\d/.test(prev)) return ''
+  return iso
 }
 
 export const FLAG_EMOJI_FONT =

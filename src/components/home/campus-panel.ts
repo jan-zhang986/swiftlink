@@ -12,3 +12,15 @@ export const campusTitleSx = {
   letterSpacing: 0,
   lineHeight: 1.3,
 } as const
+
+export const campusInfoRowSx = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  gap: 2,
+  minWidth: 0,
+  px: 1.5,
+  py: 1.15,
+  borderRadius: '12px',
+  bgcolor: 'action.hover',
+} as const

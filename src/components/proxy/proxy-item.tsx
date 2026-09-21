@@ -1,4 +1,8 @@
-import { CheckCircleOutlineRounded } from '@mui/icons-material'
+import {
+  CheckCircleOutlineRounded,
+  DataUsageRounded,
+  EventAvailableRounded,
+} from '@mui/icons-material'
 import {
   alpha,
   Box,
@@ -20,7 +24,7 @@ import {
   type ProxyGroupView,
   type ResolvedProxyMember,
 } from '@/types/proxy-view'
-import { splitProxyFlag } from '@/utils/proxy-flag'
+import { parseSubscriptionInfo, splitProxyFlag } from '@/utils/proxy-flag'
 
 import { ProxyNodeFlag } from './proxy-node-flag'
 
@@ -64,6 +68,67 @@ export const ProxyItem = (props: Props) => {
     member,
     group.name,
   )
+  const info = parseSubscriptionInfo(name)
+  const InfoIcon = /到期|过期|重置/.test(name)
+    ? EventAvailableRounded
+    : DataUsageRounded
+
+  if (info) {
+    return (
+      <ListItem sx={sx}>
+        <Box
+          title={name}
+          sx={{
+            width: '100%',
+            height: 48,
+            mb: 1,
+            borderRadius: '16px',
+            px: 1.5,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1.25,
+            minWidth: 0,
+            bgcolor: (theme) =>
+              theme.palette.mode === 'light' ? '#ffffff' : '#282A36',
+          }}
+        >
+          <Box
+            sx={{
+              width: 28,
+              height: 28,
+              flexShrink: 0,
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'primary.main',
+              bgcolor: (theme) => alpha(theme.palette.primary.main, 0.12),
+            }}
+          >
+            <InfoIcon sx={{ fontSize: 16 }} />
+          </Box>
+          <Typography
+            noWrap
+            sx={{ fontSize: 13, color: 'text.secondary', flexShrink: 0 }}
+          >
+            {info.label}
+          </Typography>
+          <Typography
+            noWrap
+            sx={{
+              ml: 'auto',
+              fontSize: 14,
+              fontWeight: 700,
+              letterSpacing: '-0.03em',
+              minWidth: 0,
+            }}
+          >
+            {info.value}
+          </Typography>
+        </Box>
+      </ListItem>
+    )
+  }
 
   return (
     <ListItem sx={sx}>

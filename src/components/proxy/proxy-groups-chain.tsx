@@ -1,14 +1,14 @@
 import { DragDropProvider } from '@dnd-kit/react'
-import { ExpandMoreRounded } from '@mui/icons-material'
+import { CheckRounded, ExpandMoreRounded } from '@mui/icons-material'
 import {
   Alert,
   Box,
-  Chip,
-  IconButton,
+  ButtonBase,
   Menu,
   MenuItem,
   Snackbar,
   Typography,
+  alpha,
 } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import {
@@ -105,60 +105,75 @@ function ChainRuleHeader({
   canSelectGroup,
   onMenuOpen,
 }: ChainRuleHeaderProps) {
+  const theme = useTheme()
+
   return (
-    <Box sx={{ borderBottom: '1px solid', borderColor: 'divider' }}>
-      <Box
+    <Box
+      sx={{
+        px: 2,
+        py: 1.25,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 1.25,
+        minWidth: 0,
+      }}
+    >
+      <Typography
         sx={{
-          px: 2,
-          py: 1.5,
-          borderBottom: '1px solid',
-          borderColor: 'divider',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
+          fontSize: 16,
+          fontWeight: 600,
+          letterSpacing: '-0.02em',
+          flexShrink: 0,
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '16px' }}>
-            {title}
+        {title}
+      </Typography>
+
+      {currentGroup && (
+        <ButtonBase
+          disabled={!canSelectGroup}
+          onClick={onMenuOpen}
+          aria-label={selectLabel}
+          sx={{
+            ml: 'auto',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 0.75,
+            minWidth: 0,
+            maxWidth: '72%',
+            px: 1.25,
+            py: 0.55,
+            borderRadius: '999px',
+            bgcolor: alpha(theme.palette.text.primary, 0.06),
+          }}
+        >
+          <Typography
+            noWrap
+            sx={{ fontSize: 13, fontWeight: 650, minWidth: 0 }}
+          >
+            {currentGroup.name}
           </Typography>
-
-          {currentGroup && (
-            <Chip
-              size="small"
-              label={`${currentGroup.name} (${currentGroup.type})`}
-              variant="outlined"
-              sx={{
-                fontSize: '12px',
-                maxWidth: '200px',
-                '& .MuiChip-label': {
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                },
-              }}
-            />
-          )}
-        </Box>
-
-        {canSelectGroup && (
-          <IconButton
-            size="small"
-            onClick={onMenuOpen}
+          <Box
             sx={{
-              border: '1px solid',
-              borderColor: 'divider',
-              borderRadius: '4px',
-              padding: '4px 8px',
+              flexShrink: 0,
+              px: 0.7,
+              height: 18,
+              display: 'inline-flex',
+              alignItems: 'center',
+              borderRadius: '6px',
+              fontSize: 10,
+              fontWeight: 700,
+              color: 'primary.main',
+              bgcolor: alpha(theme.palette.primary.main, 0.12),
             }}
           >
-            <Typography variant="body2" sx={{ mr: 0.5, fontSize: '12px' }}>
-              {selectLabel}
-            </Typography>
-            <ExpandMoreRounded fontSize="small" />
-          </IconButton>
-        )}
-      </Box>
+            {currentGroup.type}
+          </Box>
+          <ExpandMoreRounded
+            sx={{ fontSize: 18, color: 'text.secondary', flexShrink: 0 }}
+          />
+        </ButtonBase>
+      )}
     </Box>
   )
 }
@@ -180,8 +195,13 @@ function GroupSelectMenu({
       slotProps={{
         paper: {
           sx: {
-            maxHeight: 300,
-            minWidth: 200,
+            maxHeight: 320,
+            minWidth: 220,
+            mt: 1,
+            p: 0.75,
+            borderRadius: '16px',
+            border: 'none',
+            boxShadow: '0 12px 40px rgba(15, 23, 42, 0.14)',
           },
         },
       }}
@@ -191,21 +211,38 @@ function GroupSelectMenu({
           key={group.name}
           onClick={() => onSelect(group.name)}
           selected={selectedGroup === group.name}
-          sx={{ fontSize: '14px', py: 1 }}
+          sx={{ fontSize: '14px', py: 1, borderRadius: '12px', px: 1.25 }}
         >
           <Box
             sx={{
               display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'flex-start',
+              alignItems: 'center',
+              gap: 1.25,
+              width: '100%',
             }}
           >
-            <Typography variant="body2" sx={{ fontWeight: 500 }}>
-              {group.name}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              {group.type} · {nodeCountLabel(group.members.length)}
-            </Typography>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-start',
+                minWidth: 0,
+                flex: 1,
+              }}
+            >
+              <Typography
+                noWrap
+                sx={{ fontSize: 13, fontWeight: 650, maxWidth: '100%' }}
+              >
+                {group.name}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                {group.type} · {nodeCountLabel(group.members.length)}
+              </Typography>
+            </Box>
+            {selectedGroup === group.name ? (
+              <CheckRounded sx={{ fontSize: 16, color: 'primary.main' }} />
+            ) : null}
           </Box>
         </MenuItem>
       ))}
@@ -499,7 +536,7 @@ export function ProxyGroupsChain(props: ProxyGroupsChainProps) {
           )}
 
           {renderProxyList(
-            showRuleHeader ? 'calc(100% - 80px)' : 'calc(100% - 14px)',
+            showRuleHeader ? 'calc(100% - 56px)' : 'calc(100% - 14px)',
           )}
           <ScrollTopButton show={showScrollTop} onClick={onScrollToTop} />
         </Box>

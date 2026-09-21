@@ -5,7 +5,7 @@ import {
   DnsOutlined,
   ExtensionOutlined,
 } from '@mui/icons-material'
-import { Typography, Stack, Divider, Chip, IconButton } from '@mui/material'
+import { Typography, Stack, Chip, IconButton, Box } from '@mui/material'
 import { useLockFn } from 'ahooks'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -23,6 +23,7 @@ import { getSystemInfo } from '@/services/cmds'
 import { showNotice } from '@/services/notice-service'
 import { version as appVersion } from '@root/package.json'
 
+import { campusInfoRowSx } from './campus-panel'
 import { EnhancedCard } from './enhanced-card'
 
 export const SystemInfoCard = ({ plain = false }: { plain?: boolean }) => {
@@ -189,82 +190,89 @@ export const SystemInfoCard = ({ plain = false }: { plain?: boolean }) => {
   if (!verge) return null
 
   const body = (
-    <Stack spacing={1.5}>
-      <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
-        <Typography variant="body2" color="text.secondary">
+    <Stack spacing={0.75}>
+      <Box sx={campusInfoRowSx}>
+        <Typography sx={{ fontSize: 13, color: 'text.secondary' }}>
           {t('home.components.systemInfo.fields.osInfo')}
         </Typography>
-        <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+        <Typography
+          sx={{
+            fontSize: 13,
+            fontWeight: 650,
+            textAlign: 'right',
+            minWidth: 0,
+          }}
+        >
           {osInfo}
         </Typography>
-      </Stack>
-      <Divider />
-      <Stack
-        direction="row"
-        sx={{ justifyContent: 'space-between', alignItems: 'center' }}
-      >
-        <Typography variant="body2" color="text.secondary">
+      </Box>
+      <Box sx={campusInfoRowSx}>
+        <Typography sx={{ fontSize: 13, color: 'text.secondary' }}>
           {t('home.components.systemInfo.fields.autoLaunch')}
         </Typography>
-        <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-          <Chip
-            size="small"
-            label={
-              autoLaunchEnabled
-                ? t('shared.statuses.enabled')
-                : t('shared.statuses.disabled')
-            }
-            color={autoLaunchEnabled ? 'success' : 'default'}
-            variant={autoLaunchEnabled ? 'filled' : 'outlined'}
-            onClick={toggleAutoLaunch}
-            sx={{ cursor: 'pointer' }}
-          />
-        </Stack>
-      </Stack>
-      <Divider />
-      <Stack
-        direction="row"
-        sx={{ justifyContent: 'space-between', alignItems: 'center' }}
-      >
-        <Typography variant="body2" color="text.secondary">
+        <Chip
+          size="small"
+          label={
+            autoLaunchEnabled
+              ? t('shared.statuses.enabled')
+              : t('shared.statuses.disabled')
+          }
+          onClick={toggleAutoLaunch}
+          sx={{
+            cursor: 'pointer',
+            height: 24,
+            fontWeight: 650,
+            borderRadius: '8px',
+            bgcolor: autoLaunchEnabled ? 'success.main' : 'action.selected',
+            color: autoLaunchEnabled ? '#fff' : 'text.secondary',
+            '& .MuiChip-label': { px: 1 },
+          }}
+        />
+      </Box>
+      <Box sx={campusInfoRowSx}>
+        <Typography sx={{ fontSize: 13, color: 'text.secondary' }}>
           {t('home.components.systemInfo.fields.runningMode')}
         </Typography>
         <Typography
-          variant="body2"
           onClick={handleRunningModeClick}
-          sx={{ ...runningModeStyle, fontWeight: 'medium' }}
+          sx={{
+            ...runningModeStyle,
+            fontSize: 13,
+            fontWeight: 650,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 0.5,
+          }}
         >
           {getModeIcon()}
           {getModeText()}
         </Typography>
-      </Stack>
-      <Divider />
-      <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
-        <Typography variant="body2" color="text.secondary">
+      </Box>
+      <Box sx={campusInfoRowSx}>
+        <Typography sx={{ fontSize: 13, color: 'text.secondary' }}>
           {t('home.components.systemInfo.fields.lastCheckUpdate')}
         </Typography>
         <Typography
-          variant="body2"
           onClick={onCheckUpdate}
           sx={{
             cursor: 'pointer',
-            textDecoration: 'underline',
-            fontWeight: 'medium',
-            '&:hover': { opacity: 0.7 },
+            fontSize: 13,
+            fontWeight: 650,
+            color: 'primary.main',
+            '&:hover': { opacity: 0.75 },
           }}
         >
           {lastCheckUpdateText}
         </Typography>
-      </Stack>
-      <Divider />
-      <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
-        <Typography variant="body2" color="text.secondary">
+      </Box>
+      <Box sx={campusInfoRowSx}>
+        <Typography sx={{ fontSize: 13, color: 'text.secondary' }}>
           {t('home.components.systemInfo.fields.vergeVersion')}
         </Typography>
-        <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+        <Typography sx={{ fontSize: 13, fontWeight: 650 }}>
           v{appVersion}
         </Typography>
-      </Stack>
+      </Box>
     </Stack>
   )
 

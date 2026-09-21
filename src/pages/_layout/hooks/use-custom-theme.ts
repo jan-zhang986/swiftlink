@@ -344,18 +344,15 @@ export const useCustomTheme = () => {
         /* 窗口本体不要描边，避免套框 */
         .layout.MuiPaper-root {
           border: none !important;
+          box-shadow: none !important;
         }
 
-        /* 确保模态框和对话框也使用暗色主题 */
-        .MuiDialog-paper {
+        .MuiDialog-paper,
+        .MuiMenu-paper,
+        .MuiPopover-paper,
+        .MuiAutocomplete-paper {
           background-color: ${mode === 'light' ? '#ffffff' : '#1a2030'} !important;
           border-radius: 20px !important;
-        }
-
-        /* 移除可能的白色点或线条 */
-        * {
-          outline: none !important;
-          box-shadow: none !important;
         }
       `
 
