@@ -144,9 +144,9 @@ const APP_AVATAR_COLORS = [
 ] as const
 
 const profileInitials = (name?: string) => {
-  const chars = Array.from((name || 'XL').trim())
-  if (chars.length === 0) return 'XL'
-  if (/[\u3400-\u9fff]/.test(chars[0] ?? '')) return chars[0] ?? 'X'
+  const chars = Array.from((name || 'SL').trim())
+  if (chars.length === 0) return 'SL'
+  if (/[\u3400-\u9fff]/.test(chars[0] ?? '')) return chars[0] ?? 'S'
   return chars.slice(0, 2).join('').toUpperCase()
 }
 

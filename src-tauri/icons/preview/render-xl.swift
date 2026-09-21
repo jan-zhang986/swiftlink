@@ -48,7 +48,7 @@ let attrs: [NSAttributedString.Key: Any] = [
   .paragraphStyle: style,
   .kern: -14,
 ]
-let text = NSAttributedString(string: "XL", attributes: attrs)
+let text = NSAttributedString(string: "SL", attributes: attrs)
 let textSize = text.size()
 let textRect = CGRect(
   x: (CGFloat(size) - textSize.width) / 2,

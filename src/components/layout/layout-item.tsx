@@ -21,7 +21,7 @@ export const LayoutItem = (props: Props) => {
   const { to, children, icon, sortable } = props
   const { verge } = useVerge()
   const { menu_icon } = verge ?? {}
-  const navCollapsed = verge?.collapse_navbar ?? true
+  const navCollapsed = verge?.collapse_navbar ?? false
   const resolved = useResolvedPath(to)
   const match = useMatch({ path: resolved.pathname, end: true })
   const navigate = useNavigate()
@@ -47,6 +47,10 @@ export const LayoutItem = (props: Props) => {
             paddingRight: 1,
             cursor: 'pointer',
             bgcolor: 'transparent',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '2px',
             '& .MuiListItemText-primary': {
               color: 'rgba(255, 255, 255, 0.86)',
               fontWeight: 500,
@@ -84,8 +88,8 @@ export const LayoutItem = (props: Props) => {
             },
           }),
         ]}
-        title={navCollapsed ? children : undefined}
-        aria-label={navCollapsed ? children : undefined}
+        title={children}
+        aria-label={children}
         onClick={() => navigate(to)}
       >
         {(effectiveMenuIcon === 'monochrome' || !effectiveMenuIcon) && (
@@ -100,9 +104,11 @@ export const LayoutItem = (props: Props) => {
         )}
         <ListItemText
           sx={{
+            display: 'block',
             textAlign: 'center',
-            marginLeft:
-              navCollapsed || effectiveMenuIcon === 'disable' ? 0 : '-35px',
+            margin: 0,
+            minWidth: 0,
+            flex: 'none',
           }}
           primary={children}
         />

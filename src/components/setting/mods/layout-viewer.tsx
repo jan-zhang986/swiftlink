@@ -366,7 +366,7 @@ export const LayoutViewer = forwardRef<DialogRef>((_, ref) => {
             )}
           />
           <GuardState
-            value={verge?.collapse_navbar ?? true}
+            value={verge?.collapse_navbar ?? false}
             valueProps="checked"
             onCatch={onError}
             onFormat={onSwitchFormat}

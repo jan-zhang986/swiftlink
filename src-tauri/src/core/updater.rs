@@ -1,4 +1,5 @@
-use crate::{config::Config, singleton, utils::dirs};
+#![allow(dead_code)]
+use crate::{singleton, utils::dirs};
 use anyhow::Result;
 use chrono::Utc;
 use clash_verge_logging::{Type, logging};
@@ -8,7 +9,7 @@ use std::{
     path::PathBuf,
     sync::atomic::{AtomicBool, Ordering},
 };
-use tauri_plugin_updater::{Update, UpdaterExt as _};
+use tauri_plugin_updater::Update;
 
 pub struct SilentUpdater {
     update_ready: AtomicBool,
@@ -133,158 +134,10 @@ fn nsis_language_id(app_language: &str) -> &'static str {
 }
 
 impl SilentUpdater {
-    /// Installs a newer cached update before normal startup, if the user confirms.
-    pub async fn try_install_on_startup(&self, app_handle: &tauri::AppHandle) -> bool {
-        let current_version = env!("CARGO_PKG_VERSION");
-
-        let meta = match Self::read_cache_meta() {
-            Ok(meta) => meta,
-            Err(_) => return false, // No cache, nothing to do
-        };
-
-        let cached_version = &meta.version;
-
-        if version_lte(cached_version, current_version) {
-            logging!(
-                info,
-                Type::System,
-                "Update cache version ({}) <= current ({}), cleaning up",
-                cached_version,
-                current_version
-            );
-            Self::delete_cache();
-            return false;
-        }
-
-        logging!(
-            info,
-            Type::System,
-            "Update cache version ({}) > current ({}), asking user to install",
-            cached_version,
-            current_version
-        );
-
-        // Preserve the cache when skipped so the next launch asks again.
-        if !Self::ask_user_to_install(app_handle, cached_version).await {
-            logging!(info, Type::System, "User skipped update install, starting normally");
-            return false;
-        }
-
-        let bytes = match Self::read_cache_bytes() {
-            Ok(b) => b,
-            Err(e) => {
-                logging!(
-                    warn,
-                    Type::System,
-                    "Failed to read cached update bytes: {e}, cleaning up"
-                );
-                Self::delete_cache();
-                return false;
-            }
-        };
-
-        // Refresh metadata without re-downloading. Windows receives `/LANG` to suppress the
-        // NSIS language dialog; see `packages/windows/installer.nsi`.
-        let updater_builder = app_handle.updater_builder();
-        #[cfg(target_os = "windows")]
-        let updater_builder = {
-            let verge_lang = Config::verge().await.latest_arc().language.clone();
-            let lang_id = nsis_language_id(&clash_verge_i18n::current_language(verge_lang.as_deref()));
-            updater_builder.installer_arg(format!("/LANG={lang_id}"))
-        };
-        let update = match updater_builder.build() {
-            Ok(updater) => match updater.check().await {
-                Ok(Some(u)) => u,
-                Ok(None) => {
-                    logging!(
-                        info,
-                        Type::System,
-                        "No update available from server, cache may be stale, cleaning up"
-                    );
-                    Self::delete_cache();
-                    return false;
-                }
-                Err(e) => {
-                    logging!(
-                        warn,
-                        Type::System,
-                        "Failed to check for update at startup: {e}, will retry next launch"
-                    );
-                    return false; // Keep cache for next attempt
-                }
-            },
-            Err(e) => {
-                logging!(
-                    warn,
-                    Type::System,
-                    "Failed to create updater: {e}, will retry next launch"
-                );
-                return false;
-            }
-        };
-
-        // A changed server version invalidates the cached bytes.
-        if update.version != *cached_version {
-            logging!(
-                info,
-                Type::System,
-                "Server version ({}) != cached version ({}), cache is stale, cleaning up",
-                update.version,
-                cached_version
-            );
-            Self::delete_cache();
-            return false;
-        }
-
-        let version = update.version.clone();
-        logging!(info, Type::System, "Installing cached update v{version} at startup...");
-
-        Self::show_update_splash(app_handle, &version);
-
-        // `install()` may hang (#2558); on Windows NSIS can take over without returning.
-        let install_result = tokio::task::spawn_blocking({
-            let bytes = bytes.clone();
-            let update = update.clone();
-            move || update.install(&bytes)
-        });
-
-        let success = match tokio::time::timeout(std::time::Duration::from_secs(30), install_result).await {
-            Ok(Ok(Ok(()))) => {
-                logging!(info, Type::System, "Update v{version} install triggered at startup");
-                Self::delete_cache();
-                true
-            }
-            Ok(Ok(Err(e))) => {
-                logging!(
-                    warn,
-                    Type::System,
-                    "Startup install failed: {e}, will retry next launch"
-                );
-                false
-            }
-            Ok(Err(e)) => {
-                logging!(
-                    warn,
-                    Type::System,
-                    "Startup install task panicked: {e}, will retry next launch"
-                );
-                false
-            }
-            Err(_) => {
-                logging!(
-                    warn,
-                    Type::System,
-                    "Startup install timed out (30s), will retry next launch"
-                );
-                false
-            }
-        };
-
-        if !success {
-            Self::close_update_splash(app_handle);
-        }
-
-        success
+    /// Cached upstream installers are discarded; this fork does not auto-update.
+    pub async fn try_install_on_startup(&self, _app_handle: &tauri::AppHandle) -> bool {
+        Self::delete_cache();
+        false
     }
 }
 
@@ -394,81 +247,8 @@ impl SilentUpdater {
 }
 
 impl SilentUpdater {
-    async fn check_and_download(&self, app_handle: &tauri::AppHandle) -> Result<()> {
-        let auto_check = Config::verge().await.latest_arc().auto_check_update.unwrap_or(true);
-        if !auto_check {
-            logging!(debug, Type::System, "Silent update skipped: auto_check_update is false");
-            return Ok(());
-        }
-
-        if self.is_update_ready() {
-            logging!(debug, Type::System, "Silent update skipped: update already pending");
-            return Ok(());
-        }
-
-        logging!(info, Type::System, "Silent updater: checking for updates...");
-
-        let updater = app_handle.updater()?;
-        let update = match updater.check().await {
-            Ok(Some(update)) => update,
-            Ok(None) => {
-                logging!(info, Type::System, "Silent updater: no update available");
-                return Ok(());
-            }
-            Err(e) => {
-                logging!(warn, Type::System, "Silent updater: check failed: {e}");
-                return Err(e.into());
-            }
-        };
-
-        let version = update.version.clone();
-        logging!(info, Type::System, "Silent updater: update available: v{version}");
-
-        if let Some(body) = &update.body
-            && body.to_lowercase().contains("break change")
-        {
-            logging!(
-                info,
-                Type::System,
-                "Silent updater: breaking change detected in v{version}, notifying frontend"
-            );
-            super::handle::Handle::notice_message(
-                "info",
-                format!("New version v{version} contains breaking changes. Please update manually."),
-            );
-            return Ok(());
-        }
-
-        logging!(info, Type::System, "Silent updater: downloading v{version}...");
-        let bytes = update
-            .download(
-                |chunk_len, content_len| {
-                    logging!(
-                        debug,
-                        Type::System,
-                        "Silent updater download progress: chunk={chunk_len}, total={content_len:?}"
-                    );
-                },
-                || {
-                    logging!(info, Type::System, "Silent updater: download complete");
-                },
-            )
-            .await?;
-
-        if let Err(e) = Self::write_cache(&bytes, &version) {
-            logging!(warn, Type::System, "Silent updater: failed to write cache: {e}");
-        }
-
-        *self.pending_bytes.write() = Some(bytes);
-        *self.pending_update.write() = Some(update);
-        *self.pending_version.write() = Some(version.clone());
-        self.update_ready.store(true, Ordering::Release);
-
-        logging!(
-            info,
-            Type::System,
-            "Silent updater: v{version} ready for startup install on next launch"
-        );
+    async fn check_and_download(&self, _app_handle: &tauri::AppHandle) -> Result<()> {
+        logging!(debug, Type::System, "Silent update skipped: fork updates are disabled");
         Ok(())
     }
 

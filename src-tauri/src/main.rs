@@ -15,6 +15,12 @@ fn main() -> ExitCode {
 
 #[cfg(not(all(feature = "perf-harness", target_os = "macos")))]
 fn main() -> ExitCode {
+    #[cfg(target_os = "macos")]
+    {
+        use objc2_foundation::{NSProcessInfo, ns_string};
+        NSProcessInfo::processInfo().setProcessName(ns_string!("SwiftLink"));
+    }
+
     let default_parallelism = std::thread::available_parallelism().map(|n| n.get()).unwrap_or(1);
     let worker_limit = std::cmp::min(default_parallelism, 8);
     let blocking_limit = 2 * worker_limit;

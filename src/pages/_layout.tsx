@@ -42,7 +42,7 @@ const Layout = () => {
   const { theme } = useCustomTheme()
   const { verge } = useVerge()
   const { language } = verge ?? {}
-  const navCollapsed = verge?.collapse_navbar ?? true
+  const navCollapsed = verge?.collapse_navbar ?? false
   const { switchLanguage } = useI18n()
   const navigate = useNavigate()
   const themeReady = useMemo(() => Boolean(theme), [theme])

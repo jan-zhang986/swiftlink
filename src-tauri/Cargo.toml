@@ -1,18 +1,23 @@
 [package]
 name = "clash-verge"
 version = "2.5.4-rc"
-description = "clash verge"
+description = "SwiftLink"
 authors = ["zzzgydi", "Tunglies", "wonfen", "MystiPanda"]
 license = "GPL-3.0-only"
 repository = "https://github.com/clash-verge-rev/clash-verge-rev.git"
-default-run = "clash-verge"
+default-run = "SwiftLink"
 build = "build.rs"
 edition = "2024"
 rust-version = "1.95"
+autobins = false
 
 [lib]
 name = "app_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
+
+[[bin]]
+name = "SwiftLink"
+path = "src/main.rs"
 
 [features]
 default = ["custom-protocol"]
@@ -120,6 +125,7 @@ objc2-foundation = { version = "0.3.2", features = [
   "NSString",
   "NSDictionary",
   "NSAttributedString",
+  "NSProcessInfo",
 ] }
 objc2-app-kit = { version = "0.3.2", features = [
   "NSAttributedString",

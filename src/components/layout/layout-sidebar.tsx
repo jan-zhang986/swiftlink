@@ -1,10 +1,8 @@
 import { DragDropProvider, KeyboardSensor, PointerSensor } from '@dnd-kit/react'
-import { Box, List, Menu, MenuItem, SvgIcon } from '@mui/material'
+import { Box, List, Menu, MenuItem } from '@mui/material'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import iconDark from '@/assets/image/icon_dark.svg?react'
-import iconLight from '@/assets/image/icon_light.svg?react'
 import LogoSvg from '@/assets/image/logo.svg?react'
 import { useVerge } from '@/hooks/use-verge'
 import { useNavMenuOrder } from '@/pages/_layout/hooks'
@@ -26,7 +24,7 @@ interface LayoutSidebarProps {
 const SENSORS = [PointerSensor, KeyboardSensor]
 
 export const LayoutSidebar = (props: LayoutSidebarProps) => {
-  const { isDark, isCollapsed } = props
+  const { isCollapsed } = props
   const { t } = useTranslation()
   const { verge, mutateVerge, patchVerge } = useVerge()
   const [menuUnlocked, setMenuUnlocked] = useState(false)
@@ -124,29 +122,8 @@ export const LayoutSidebar = (props: LayoutSidebarProps) => {
   return (
     <div className="layout-content__left">
       {/* Logo */}
-      <div className="the-logo" data-tauri-drag-region="false">
-        <div
-          data-tauri-drag-region="true"
-          style={{
-            height: '27px',
-            display: 'flex',
-            justifyContent: 'space-between',
-          }}
-        >
-          <SvgIcon
-            component={isDark ? iconDark : iconLight}
-            style={{
-              height: '36px',
-              width: '36px',
-              marginTop: '-3px',
-              marginRight: '5px',
-              marginLeft: '-3px',
-              filter: 'brightness(0) invert(1)',
-            }}
-            inheritViewBox
-          />
-          <LogoSvg fill="#ffffff" />
-        </div>
+      <div className="the-logo" data-tauri-drag-region="true">
+        <LogoSvg />
         <UpdateButton className="the-newbtn" />
       </div>
 

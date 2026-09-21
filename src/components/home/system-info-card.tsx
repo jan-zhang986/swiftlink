@@ -33,7 +33,7 @@ export const SystemInfoCard = ({ plain = false }: { plain?: boolean }) => {
   const { isAdminMode, isSidecarMode, mutateSystemState } = useSystemState()
   const { installServiceAndRestartCore } = useServiceInstaller()
 
-  const { checkUpdate: triggerCheckUpdate, lastCheckUpdate } = useUpdate(true)
+  const { checkUpdate: triggerCheckUpdate, lastCheckUpdate } = useUpdate(false)
 
   const [osInfo, setOsInfo] = useState('')
 

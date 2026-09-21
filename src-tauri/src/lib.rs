@@ -107,6 +107,13 @@ mod app_init {
 
     /// About/Hide/Quit default to the Cargo package name; override them to SwiftLink.
     #[cfg(target_os = "macos")]
+    pub fn apply_macos_dock_name() {
+        use objc2_foundation::{NSProcessInfo, ns_string};
+        NSProcessInfo::processInfo().setProcessName(ns_string!("SwiftLink"));
+    }
+
+    /// About/Hide/Quit default to the Cargo package name; override them to SwiftLink.
+    #[cfg(target_os = "macos")]
     pub fn setup_native_menu(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
         use tauri::menu::{AboutMetadata, HELP_SUBMENU_ID, Menu, PredefinedMenuItem, Submenu, WINDOW_SUBMENU_ID};
 
@@ -311,6 +318,9 @@ pub fn run() -> std::process::ExitCode {
         return std::process::ExitCode::SUCCESS;
     }
 
+    #[cfg(target_os = "macos")]
+    app_init::apply_macos_dock_name();
+
     // Runs before the singleton check, which is the first thing to open a file in that directory.
     #[cfg(windows)]
     if let Err(error) =
@@ -367,6 +377,9 @@ pub fn run() -> std::process::ExitCode {
                 if let Err(e) = app_init::setup_autostart(app) {
                     logging!(error, Type::Setup, "Failed to setup autostart: {}", e);
                 }
+
+                #[cfg(target_os = "macos")]
+                app_init::apply_macos_dock_name();
 
                 #[cfg(target_os = "macos")]
                 if let Err(e) = app_init::setup_native_menu(app) {

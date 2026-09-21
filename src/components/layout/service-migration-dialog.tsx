@@ -1,5 +1,5 @@
 import { Alert } from '@mui/material'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { BaseDialog } from '@/components/base'
@@ -45,6 +45,9 @@ export const ServiceMigrationDialog = () => {
           : 'reinstall'
   const open = loading || workflowIncomplete || needsDecision
   const showCheckingMessage = loading || !needsDecision
+  const autoSidecarTriedRef = useRef(false)
+  const handleContinueRef = useRef<() => Promise<void>>(async () => {})
+  const [showDialog, setShowDialog] = useState(false)
 
   // One cache entry to refresh, so there is nothing left to keep coherent by hand.
   const refreshRunState = async () => {
@@ -147,15 +150,26 @@ export const ServiceMigrationDialog = () => {
         'layout.components.serviceMigration.errors.sidecarFailed',
         startupError,
       )
+      setShowDialog(true)
     } else if (installRefreshSucceeded) {
       setWorkflowIncomplete(false)
+    } else {
+      setShowDialog(true)
     }
     setLoading(false)
   }
 
+  handleContinueRef.current = handleContinue
+
+  useEffect(() => {
+    if (!needsDecision || autoSidecarTriedRef.current) return
+    autoSidecarTriedRef.current = true
+    void handleContinueRef.current()
+  }, [needsDecision])
+
   return (
     <BaseDialog
-      open={open}
+      open={showDialog && open}
       title={t('layout.components.serviceMigration.title')}
       okBtn={t(
         remedy === 'install'
