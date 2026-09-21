@@ -4,14 +4,7 @@ import {
   VerticalAlignBottomRounded,
   VerticalAlignTopRounded,
 } from '@mui/icons-material'
-import {
-  Box,
-  IconButton,
-  ListItem,
-  ListItemText,
-  alpha,
-  styled,
-} from '@mui/material'
+import { Box, IconButton, ListItem, alpha } from '@mui/material'
 
 interface Props {
   type: 'prepend' | 'original' | 'delete' | 'append'
@@ -33,105 +26,106 @@ export const RuleItem = (props: Props) => {
   return (
     <ListItem
       dense
-      sx={({ palette }) => ({
-        position: 'relative',
-        background:
-          type === 'original'
-            ? palette.mode === 'dark'
-              ? alpha(palette.background.paper, 0.3)
-              : alpha(palette.grey[400], 0.3)
-            : type === 'delete'
-              ? alpha(palette.error.main, 0.3)
-              : alpha(palette.success.main, 0.3),
-        height: '100%',
-        borderRadius: '8px',
-      })}
+      disableGutters
+      sx={(theme) => {
+        const tone =
+          type === 'delete'
+            ? theme.palette.error.main
+            : type === 'prepend' || type === 'append'
+              ? theme.palette.success.main
+              : theme.palette.text.primary
+        return {
+          position: 'relative',
+          gap: 1,
+          px: 1.25,
+          py: 0.75,
+          minHeight: 44,
+          borderRadius: '12px',
+          bgcolor:
+            type === 'original'
+              ? alpha(theme.palette.text.primary, 0.04)
+              : alpha(tone, 0.1),
+        }
+      }}
     >
-      <ListItemText
+      <Box
         data-sortable-handle
-        sx={{ cursor: isSortable ? 'move' : undefined }}
-        primary={
-          <StyledPrimary
-            title={ruleContent || '-'}
-            sx={{ textDecoration: type === 'delete' ? 'line-through' : '' }}
-          >
-            {ruleContent || '-'}
-          </StyledPrimary>
-        }
-        secondary={
-          <ListItemTextChild
-            sx={{
-              width: '62%',
-              overflow: 'hidden',
-              display: 'flex',
-              justifyContent: 'space-between',
-              pt: '2px',
-            }}
-          >
-            <Box sx={{ marginTop: '2px' }}>
-              <StyledTypeBox>{ruleType}</StyledTypeBox>
-            </Box>
-            <StyledSubtitle sx={{ color: 'text.secondary' }}>
-              {proxyPolicy}
-            </StyledSubtitle>
-          </ListItemTextChild>
-        }
-        slotProps={{
-          secondary: {
-            sx: {
-              display: 'flex',
-              alignItems: 'center',
-              color: '#ccc',
-            },
-          },
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1,
+          minWidth: 0,
+          flex: 1,
+          cursor: isSortable ? 'grab' : 'default',
         }}
-      />
+      >
+        <Box
+          sx={(theme) => ({
+            flexShrink: 0,
+            px: 0.75,
+            py: 0.15,
+            borderRadius: '6px',
+            bgcolor: alpha(theme.palette.primary.main, 0.1),
+            color: 'primary.main',
+            fontSize: 11,
+            fontWeight: 650,
+            lineHeight: 1.45,
+          })}
+        >
+          {ruleType}
+        </Box>
+        <Box
+          title={ruleContent || '-'}
+          sx={{
+            minWidth: 0,
+            flex: 1,
+            fontSize: 13,
+            fontWeight: 600,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            textDecoration: type === 'delete' ? 'line-through' : 'none',
+            opacity: type === 'delete' ? 0.55 : 1,
+          }}
+        >
+          {ruleContent || '-'}
+        </Box>
+        <Box
+          title={proxyPolicy}
+          sx={(theme) => ({
+            flexShrink: 0,
+            maxWidth: '34%',
+            px: 0.85,
+            py: 0.15,
+            borderRadius: '999px',
+            bgcolor: alpha(theme.palette.text.primary, 0.06),
+            fontSize: 11,
+            fontWeight: 650,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          })}
+        >
+          {proxyPolicy}
+        </Box>
+      </Box>
       {type === 'prepend' && (
-        <IconButton onClick={onAppend}>
-          <VerticalAlignBottomRounded />
+        <IconButton size="small" onClick={onAppend}>
+          <VerticalAlignBottomRounded fontSize="small" />
         </IconButton>
       )}
       {type === 'append' && (
-        <IconButton onClick={onPrepend}>
-          <VerticalAlignTopRounded />
+        <IconButton size="small" onClick={onPrepend}>
+          <VerticalAlignTopRounded fontSize="small" />
         </IconButton>
       )}
-      <IconButton onClick={onDelete}>
-        {type === 'delete' ? <UndoRounded /> : <DeleteForeverRounded />}
+      <IconButton size="small" onClick={onDelete}>
+        {type === 'delete' ? (
+          <UndoRounded fontSize="small" />
+        ) : (
+          <DeleteForeverRounded fontSize="small" />
+        )}
       </IconButton>
     </ListItem>
   )
 }
-
-const StyledPrimary = styled('div')`
-  font-size: 15px;
-  font-weight: 700;
-  line-height: 1.5;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-`
-
-const StyledSubtitle = styled('span')`
-  font-size: 13px;
-  overflow: hidden;
-  color: text.secondary;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-`
-
-const ListItemTextChild = styled('span')`
-  display: block;
-`
-
-const StyledTypeBox = styled(ListItemTextChild)(({ theme }) => ({
-  display: 'inline-block',
-  border: '1px solid #ccc',
-  borderColor: alpha(theme.palette.primary.main, 0.5),
-  color: alpha(theme.palette.primary.main, 0.8),
-  borderRadius: 4,
-  fontSize: 10,
-  padding: '0 4px',
-  lineHeight: 1.5,
-  marginRight: '8px',
-}))

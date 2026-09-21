@@ -1,4 +1,8 @@
-import { FeaturedPlayListRounded } from '@mui/icons-material'
+import {
+  CodeRounded,
+  DataObjectRounded,
+  FeaturedPlayListRounded,
+} from '@mui/icons-material'
 import {
   Box,
   Badge,
@@ -18,7 +22,6 @@ import { viewProfile, readProfileFile, saveProfileFile } from '@/services/cmds'
 import { showNotice } from '@/services/notice-service'
 
 import { LogViewer } from './log-viewer'
-import { ProfileBox } from './profile-box'
 
 interface Props {
   logInfo?: [string, string][]
@@ -85,14 +88,6 @@ export const ProfileMore = (props: Props) => {
     { label: 'profiles.components.menu.openFile', handler: onOpenFile },
   ]
 
-  const boxStyle = {
-    height: 26,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    lineHeight: 1,
-  }
-
   const handleSave = useLockFn(async () => {
     const currentValue = document.value
     if (!(await saveProfileFile(id, currentValue))) {
@@ -107,71 +102,106 @@ export const ProfileMore = (props: Props) => {
     document.setValue(DEFAULT_SCRIPT)
   }, [document])
 
+  const Icon = id === 'Merge' ? DataObjectRounded : CodeRounded
+
   return (
     <>
-      <ProfileBox
-        onDoubleClick={onEditFile}
+      <Box
+        onClick={onEditFile}
         onContextMenu={(event) => {
           const { clientX, clientY } = event
           setPosition({ top: clientY, left: clientX })
           setAnchorEl(event.currentTarget as HTMLElement)
           event.preventDefault()
         }}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1.25,
+          minWidth: 0,
+          px: 1.5,
+          py: 1.1,
+          borderRadius: '14px',
+          bgcolor: 'action.hover',
+          cursor: 'pointer',
+          transition: 'background-color 160ms ease',
+          '&:hover': { bgcolor: 'action.selected' },
+        }}
       >
         <Box
           sx={{
+            width: 34,
+            height: 34,
+            flexShrink: 0,
+            borderRadius: '10px',
             display: 'flex',
-            justifyContent: 'space-between',
             alignItems: 'center',
-            mb: 0.5,
+            justifyContent: 'center',
+            color: 'primary.main',
+            bgcolor: (theme) =>
+              theme.palette.mode === 'light'
+                ? 'rgba(25, 118, 210, 0.1)'
+                : 'rgba(144, 202, 249, 0.16)',
           }}
         >
+          <Icon sx={{ fontSize: 18 }} />
+        </Box>
+        <Box sx={{ minWidth: 0, flex: 1 }}>
           <Typography
-            variant="h6"
-            component="h2"
             noWrap
             title={t(globalTitles[id])}
-            sx={{ width: 'calc(100% - 52px)' }}
+            sx={{
+              fontSize: 13,
+              fontWeight: 650,
+              color: 'text.primary',
+              letterSpacing: '-0.02em',
+              lineHeight: 1.3,
+            }}
           >
             {t(globalTitles[id])}
           </Typography>
-
           <Chip
             label={t(chipLabels[id])}
-            color="primary"
             size="small"
-            variant="outlined"
-            sx={{ height: 20, textTransform: 'capitalize' }}
+            sx={{
+              mt: 0.35,
+              height: 18,
+              fontSize: 10,
+              fontWeight: 600,
+              borderRadius: '6px',
+              bgcolor: 'background.paper',
+            }}
           />
         </Box>
-
-        <Box sx={boxStyle}>
-          {id === 'Script' &&
-            (hasError ? (
-              <Badge color="error" variant="dot" overlap="circular">
-                <IconButton
-                  size="small"
-                  edge="start"
-                  color="error"
-                  title={t('profiles.modals.logViewer.title')}
-                  onClick={() => setLogOpen(true)}
-                >
-                  <FeaturedPlayListRounded fontSize="inherit" />
-                </IconButton>
-              </Badge>
-            ) : (
+        {id === 'Script' &&
+          (hasError ? (
+            <Badge color="error" variant="dot" overlap="circular">
               <IconButton
                 size="small"
-                edge="start"
-                color="inherit"
+                color="error"
                 title={t('profiles.modals.logViewer.title')}
-                onClick={() => setLogOpen(true)}
+                onClick={(event) => {
+                  event.stopPropagation()
+                  setLogOpen(true)
+                }}
               >
                 <FeaturedPlayListRounded fontSize="inherit" />
               </IconButton>
-            ))}
-        </Box>
-      </ProfileBox>
+            </Badge>
+          ) : (
+            <IconButton
+              size="small"
+              color="inherit"
+              title={t('profiles.modals.logViewer.title')}
+              onClick={(event) => {
+                event.stopPropagation()
+                setLogOpen(true)
+              }}
+            >
+              <FeaturedPlayListRounded fontSize="inherit" />
+            </IconButton>
+          ))}
+      </Box>
 
       <Menu
         open={!!anchorEl}
@@ -186,28 +216,16 @@ export const ProfileMore = (props: Props) => {
           e.preventDefault()
         }}
       >
-        {itemMenu
-          .filter((item: any) => item.show !== false)
-          .map((item) => (
-            <MenuItem
-              key={item.label}
-              onClick={item.handler}
-              sx={[
-                { minWidth: 120 },
-                (theme) => {
-                  return {
-                    color:
-                      item.label === 'Delete'
-                        ? theme.palette.error.main
-                        : undefined,
-                  }
-                },
-              ]}
-              dense
-            >
-              {t(item.label)}
-            </MenuItem>
-          ))}
+        {itemMenu.map((item) => (
+          <MenuItem
+            key={item.label}
+            onClick={item.handler}
+            sx={{ minWidth: 120 }}
+            dense
+          >
+            {t(item.label)}
+          </MenuItem>
+        ))}
       </Menu>
       {fileOpen && (
         <EditorViewer

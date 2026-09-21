@@ -21,7 +21,7 @@ export const LayoutItem = (props: Props) => {
   const { to, children, icon, sortable } = props
   const { verge } = useVerge()
   const { menu_icon } = verge ?? {}
-  const navCollapsed = verge?.collapse_navbar ?? false
+  const navCollapsed = verge?.collapse_navbar ?? true
   const resolved = useResolvedPath(to)
   const match = useMatch({ path: resolved.pathname, end: true })
   const navigate = useNavigate()
@@ -38,54 +38,71 @@ export const LayoutItem = (props: Props) => {
       <ListItemButton
         ref={sortable?.handleRef}
         selected={!!match}
+        disableRipple
         sx={[
           {
             borderRadius: 2,
-            marginLeft: 1.25,
+            margin: 0,
             paddingLeft: 1,
             paddingRight: 1,
-            marginRight: 1.25,
             cursor: 'pointer',
+            bgcolor: 'transparent',
             '& .MuiListItemText-primary': {
-              color: 'text.primary',
-              fontWeight: '700',
+              color: 'rgba(255, 255, 255, 0.86)',
+              fontWeight: 500,
+            },
+            '& .nav-item-icon': {
+              width: 36,
+              height: 36,
+              minWidth: 36,
+              borderRadius: '10px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'rgba(255, 255, 255, 0.95)',
+              bgcolor: 'transparent',
             },
           },
-          ({ palette: { mode, primary } }) => {
-            const bgcolor =
-              mode === 'light'
-                ? alpha(primary.main, 0.15)
-                : alpha(primary.main, 0.35)
-            const color = mode === 'light' ? '#1f1f1f' : '#ffffff'
-            return {
-              '&.Mui-selected': { bgcolor },
-              '&.Mui-selected:hover': { bgcolor },
-              '&.Mui-selected .MuiListItemText-primary': { color },
-            }
-          },
+          ({ palette: { primary } }) => ({
+            '&:hover': {
+              bgcolor: 'transparent',
+              '& .nav-item-icon': {
+                bgcolor: alpha('#ffffff', 0.16),
+              },
+            },
+            '&.Mui-selected': {
+              bgcolor: 'transparent',
+              '&:hover': { bgcolor: 'transparent' },
+              '& .nav-item-icon': {
+                bgcolor: '#ffffff',
+                color: primary.main,
+              },
+              '& .MuiListItemText-primary': {
+                color: '#ffffff',
+                fontWeight: 600,
+              },
+            },
+          }),
         ]}
         title={navCollapsed ? children : undefined}
         aria-label={navCollapsed ? children : undefined}
         onClick={() => navigate(to)}
       >
         {(effectiveMenuIcon === 'monochrome' || !effectiveMenuIcon) && (
-          <ListItemIcon
-            sx={{
-              color: 'text.primary',
-              marginLeft: '6px',
-              cursor: 'inherit',
-            }}
-          >
+          <ListItemIcon className="nav-item-icon" sx={{ cursor: 'inherit' }}>
             {icon[0]}
           </ListItemIcon>
         )}
         {effectiveMenuIcon === 'colorful' && (
-          <ListItemIcon sx={{ cursor: 'inherit' }}>{icon[1]}</ListItemIcon>
+          <ListItemIcon className="nav-item-icon" sx={{ cursor: 'inherit' }}>
+            {icon[1]}
+          </ListItemIcon>
         )}
         <ListItemText
           sx={{
             textAlign: 'center',
-            marginLeft: effectiveMenuIcon === 'disable' ? '' : '-35px',
+            marginLeft:
+              navCollapsed || effectiveMenuIcon === 'disable' ? 0 : '-35px',
           }}
           primary={children}
         />

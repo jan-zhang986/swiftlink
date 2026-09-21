@@ -590,7 +590,7 @@ function NormalProxyGroups(props: { mode: string }) {
           isGroupItem={(item) => item.type === 0}
           getItemKey={(item) => item.key}
           estimateGroupItemHeight={76}
-          estimateItemHeight={64}
+          estimateItemHeight={72}
           renderGroupItem={renderGroupItem}
           renderItem={renderProxyItem}
         />

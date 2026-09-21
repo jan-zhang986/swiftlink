@@ -201,7 +201,7 @@ export const StickyVirtualList = forwardRef(function StickyVirtualListInner<
   return (
     <div
       ref={scrollParentRef}
-      className={className}
+      className={['thin-scroll', className].filter(Boolean).join(' ')}
       style={{
         overflowY: 'auto',
         contain: 'strict',

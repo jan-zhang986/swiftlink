@@ -8,14 +8,11 @@ import { Add, NetworkCheck } from '@mui/icons-material'
 import { Box, IconButton, Tooltip, alpha, styled } from '@mui/material'
 import { emit } from '@tauri-apps/api/event'
 import { nanoid } from 'nanoid'
-import { useEffect, useRef, useMemo, useCallback } from 'react'
+import { type ReactNode, useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-// test icons
-import apple from '@/assets/image/test/apple.svg?raw'
 import github from '@/assets/image/test/github.svg?raw'
 import google from '@/assets/image/test/google.svg?raw'
-import youtube from '@/assets/image/test/youtube.svg?raw'
 import { SortableItem } from '@/components/base'
 import { TestItem } from '@/components/test/test-item'
 import { TestViewer, type TestViewerRef } from '@/components/test/test-viewer'
@@ -24,9 +21,11 @@ import { useVerge } from '@/hooks/use-verge'
 import { EnhancedCard } from './enhanced-card'
 
 // 自定义滚动条样式
-const ScrollBox = styled(Box)(({ theme }) => ({
-  maxHeight: '180px',
-  overflowY: 'auto',
+const ScrollBox = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'compact',
+})<{ compact?: boolean }>(({ theme, compact = true }) => ({
+  maxHeight: compact ? '180px' : 'none',
+  overflowY: compact ? 'auto' : 'visible',
   overflowX: 'hidden',
   '&::-webkit-scrollbar': {
     width: '6px',
@@ -41,9 +40,9 @@ const ScrollBox = styled(Box)(({ theme }) => ({
 const DEFAULT_TEST_LIST = [
   {
     uid: nanoid(),
-    name: 'Apple',
-    url: 'https://www.apple.com',
-    icon: apple,
+    name: 'Google',
+    url: 'https://www.google.com',
+    icon: google,
   },
   {
     uid: nanoid(),
@@ -51,21 +50,19 @@ const DEFAULT_TEST_LIST = [
     url: 'https://www.github.com',
     icon: github,
   },
-  {
-    uid: nanoid(),
-    name: 'Google',
-    url: 'https://www.google.com',
-    icon: google,
-  },
-  {
-    uid: nanoid(),
-    name: 'YouTube',
-    url: 'https://www.youtube.com',
-    icon: youtube,
-  },
 ]
 
-export const TestCard = () => {
+interface TestCardProps {
+  compact?: boolean
+  extraItems?: ReactNode
+  onExtraTestAll?: () => void
+}
+
+export const TestCard = ({
+  compact = true,
+  extraItems,
+  onExtraTestAll,
+}: TestCardProps) => {
   const { t } = useTranslation()
   const { verge, mutateVerge, patchVerge } = useVerge()
   const viewerRef = useRef<TestViewerRef>(null)
@@ -144,11 +141,24 @@ export const TestCard = () => {
     [testList, verge, mutateVerge, patchVerge],
   )
 
-  // 仅在verge首次加载时初始化测试列表
   useEffect(() => {
-    if (verge && !verge.test_list) {
-      patchVerge({ test_list: DEFAULT_TEST_LIST })
+    if (!verge) return
+
+    const current = verge.test_list
+    if (!current) {
+      void patchVerge({ test_list: DEFAULT_TEST_LIST })
+      return
     }
+
+    const removed = new Set([
+      'https://www.apple.com',
+      'https://www.youtube.com',
+    ])
+    const kept = current.filter((item) => !removed.has(item.url))
+    if (kept.length === current.length) return
+
+    const next = kept.length > 0 ? kept : DEFAULT_TEST_LIST
+    void patchVerge({ test_list: next })
   }, [verge, patchVerge])
 
   // 使用useMemo优化UI内容，减少渲染计算
@@ -157,14 +167,20 @@ export const TestCard = () => {
       <Box
         sx={{
           mb: 1.5,
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))',
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'stretch',
           gap: 1,
           px: 1,
         }}
       >
         {testList.map((item, index) => (
-          <SortableItem key={item.uid} id={item.uid} index={index}>
+          <SortableItem
+            key={item.uid}
+            id={item.uid}
+            index={index}
+            style={{ height: '100%', width: 'fit-content' }}
+          >
             <TestItem
               itemData={item}
               onEdit={() => viewerRef.current?.edit(item)}
@@ -172,14 +188,16 @@ export const TestCard = () => {
             />
           </SortableItem>
         ))}
+        {extraItems}
       </Box>
     ),
-    [testList, onDeleteTestListItem],
+    [testList, onDeleteTestListItem, extraItems],
   )
 
   const handleTestAll = useCallback(() => {
     emit('verge://test-all')
-  }, [])
+    onExtraTestAll?.()
+  }, [onExtraTestAll])
 
   const handleCreateTest = useCallback(() => {
     viewerRef.current?.create()
@@ -187,7 +205,9 @@ export const TestCard = () => {
 
   return (
     <EnhancedCard
-      title={t('home.components.tests.title')}
+      title={
+        extraItems ? t('tests.page.title') : t('home.components.tests.title')
+      }
       icon={<NetworkCheck />}
       action={
         <Box sx={{ display: 'flex', gap: 1 }}>
@@ -204,7 +224,7 @@ export const TestCard = () => {
         </Box>
       }
     >
-      <ScrollBox>
+      <ScrollBox compact={compact}>
         <DragDropProvider sensors={[PointerSensor]} onDragEnd={onDragEnd}>
           {renderTestItems}
         </DragDropProvider>

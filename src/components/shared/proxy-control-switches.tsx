@@ -86,9 +86,10 @@ const SwitchRow = ({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        p: 1,
-        pr: 2,
-        borderRadius: 1.5,
+        px: 2,
+        py: 0.75,
+        minHeight: 48,
+        borderRadius: 0,
         bgcolor: highlight
           ? alpha(theme.palette.success.main, 0.07)
           : 'transparent',
@@ -103,8 +104,7 @@ const SwitchRow = ({
           <PauseCircleOutlineRounded sx={{ color: 'text.disabled', mr: 1 }} />
         )}
         <Typography
-          variant="subtitle1"
-          sx={{ fontWeight: 500, fontSize: '15px' }}
+          sx={{ fontWeight: 500, fontSize: 14, letterSpacing: '-0.01em' }}
         >
           {label}
         </Typography>
@@ -130,7 +130,7 @@ const SwitchRow = ({
 const ProxyControlSwitches = ({
   label,
   onError,
-  noRightPadding = false,
+  _noRightPadding = false,
 }: ProxySwitchProps) => {
   const { t } = useTranslation()
   const { verge, mutateVerge, patchVerge } = useVerge()
@@ -180,7 +180,7 @@ const ProxyControlSwitches = ({
   const isTunMode = label === t('settings.sections.system.toggles.tunMode')
 
   return (
-    <Box sx={{ width: '100%', pr: noRightPadding ? 1 : 2 }}>
+    <Box sx={{ width: '100%' }}>
       {isSystemProxyMode && (
         <SwitchRow
           label={t('settings.sections.proxyControl.fields.systemProxy')}

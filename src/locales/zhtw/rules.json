@@ -8,7 +8,11 @@
         "update": "更新"
       }
     },
-    "title": "規則"
+    "forProfile": "{{name}} 的規則",
+    "hint": "這裡是目前生效的分流表，由上而下匹配。點右上角可為目前訂閱新增前置或後置規則。",
+    "count": "{{count}} 條",
+    "editCustom": "編輯自訂規則",
+    "needProfile": "請先啟用一個訂閱，才能編輯自訂規則"
   },
   "feedback": {
     "notifications": {

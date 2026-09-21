@@ -22,7 +22,7 @@ const formatUptime = (uptimeMs: number) => {
   return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
 }
 
-export const ClashInfoCard = () => {
+export const ClashInfoCard = ({ plain = false }: { plain?: boolean }) => {
   const { t } = useTranslation()
   const { version: clashVersion } = useClash()
   const { clashConfig } = useClashConfigData()
@@ -95,6 +95,8 @@ export const ClashInfoCard = () => {
     rules.length,
     systemProxyAddress,
   ])
+
+  if (plain) return cardContent
 
   return (
     <EnhancedCard

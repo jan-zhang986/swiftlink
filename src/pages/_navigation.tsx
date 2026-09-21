@@ -32,6 +32,7 @@ type NavigationItem = {
   path: string
   icon: ReactNode[]
   Component: ComponentType
+  sidebar?: boolean
 }
 
 export const navItems: NavigationItem[] = [
@@ -49,26 +50,31 @@ export const navItems: NavigationItem[] = [
     ...navigationItems.profiles,
     icon: [<DnsOutlinedIcon key="mui" />, <ProfilesSvg key="svg" />],
     Component: ProfilePage,
+    sidebar: false,
   },
   {
     ...navigationItems.connections,
     icon: [<LanguageOutlinedIcon key="mui" />, <ConnectionsSvg key="svg" />],
     Component: ConnectionsPage,
+    sidebar: false,
   },
   {
     ...navigationItems.rules,
     icon: [<ForkRightOutlinedIcon key="mui" />, <RulesSvg key="svg" />],
     Component: RulesPage,
+    sidebar: false,
   },
   {
     ...navigationItems.logs,
     icon: [<SubjectOutlinedIcon key="mui" />, <LogsSvg key="svg" />],
     Component: LogsPage,
+    sidebar: false,
   },
   {
     ...navigationItems.unlock,
     icon: [<LockOpenOutlinedIcon key="mui" />, <UnlockSvg key="svg" />],
     Component: UnlockPage,
+    sidebar: false,
   },
   {
     ...navigationItems.settings,
@@ -76,3 +82,5 @@ export const navItems: NavigationItem[] = [
     Component: SettingPage,
   },
 ]
+
+export const sidebarNavItems = navItems.filter((item) => item.sidebar !== false)

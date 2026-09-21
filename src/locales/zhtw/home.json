@@ -24,7 +24,29 @@
       },
       "title": "首頁設定"
     },
-    "title": "首頁"
+    "title": "首頁",
+    "greeting": "Hi, 同學 你好啊！",
+    "usingVpn": "正在使用 {{name}}",
+    "noVpn": "未連線",
+    "dashboard": {
+      "vpn": "VPN 網路",
+      "onlineTime": "在線時長",
+      "currentMode": "目前模式",
+      "currentServer": "目前伺服器",
+      "captureSystem": "系統代理",
+      "captureTun": "虛擬網卡 TUN",
+      "toolbox": "工具箱",
+      "recommended": "推薦應用",
+      "allApps": "全部應用",
+      "tools": {
+        "diagnose": "網路診斷",
+        "security": "安全檢測",
+        "trust": "信任裝置",
+        "guest": "訪客 Wi-Fi",
+        "staff": "員工 Wi-Fi",
+        "feedback": "問題回饋"
+      }
+    }
   },
   "components": {
     "proxyTun": {
@@ -57,7 +79,7 @@
         "autoLaunch": "開機自啟",
         "runningMode": "執行模式",
         "lastCheckUpdate": "最後檢查更新",
-        "vergeVersion": "Verge 版本"
+        "vergeVersion": "訊連版本"
       },
       "actions": {
         "settings": "設定"

@@ -26,6 +26,7 @@ import { ProxyGroupTools } from './proxy-group-tools'
 import { ProxyHead } from './proxy-head'
 import { ProxyItem } from './proxy-item'
 import { ProxyItemMini } from './proxy-item-mini'
+import { ProxyNodeFlag } from './proxy-node-flag'
 import type { HeadState } from './use-head-state'
 import type { IRenderItem } from './use-render-list'
 
@@ -129,21 +130,25 @@ export const ProxyRender = memo(function ProxyRender(props: RenderProps) {
                 pt: '2px',
                 overflow: 'hidden',
                 whiteSpace: 'nowrap',
+                gap: 0.75,
               }}
             >
-              <Box
-                component="span"
-                sx={{
-                  marginTop: '2px',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                }}
-              >
-                <StyledTypeBox>{group.type}</StyledTypeBox>
-                <StyledSubtitle sx={{ color: 'text.secondary' }}>
-                  {group.now}
-                </StyledSubtitle>
-              </Box>
+              <StyledTypeBox>{group.type}</StyledTypeBox>
+              {group.now ? (
+                <Box
+                  sx={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 0.6,
+                    minWidth: 0,
+                  }}
+                >
+                  <ProxyNodeFlag name={group.now} size={18} />
+                  <StyledSubtitle sx={{ color: 'text.secondary' }}>
+                    {group.now}
+                  </StyledSubtitle>
+                </Box>
+              ) : null}
             </Box>
           }
           slotProps={{
@@ -210,19 +215,18 @@ export const ProxyRender = memo(function ProxyRender(props: RenderProps) {
     )
 
     return (
-      <div style={{ padding: '4px 8px' }}>
+      <div style={{ padding: '4px 10px' }}>
         <ListItemButton
           dense
           sx={{
             boxShadow:
               stickyed && headState?.open
-                ? '0 4px 8px rgba(0, 0, 0, 0.2) !important'
+                ? '0 8px 20px rgba(15, 23, 42, 0.08) !important'
                 : undefined,
-          }}
-          style={{
             background: itembackgroundcolor,
             height: '100%',
-            borderRadius: '8px',
+            borderRadius: '16px',
+            px: 1.5,
           }}
           onClick={() => {
             if (headState?.open) {
@@ -294,11 +298,11 @@ export const ProxyRender = memo(function ProxyRender(props: RenderProps) {
     return (
       <Box
         sx={{
-          height: 56,
+          height: 64,
           display: 'grid',
           my: 0.5,
           gap: 1,
-          px: 2,
+          px: 1.5,
           gridTemplateColumns: `repeat(${item.col! || 2}, 1fr)`,
         }}
       >
@@ -328,12 +332,13 @@ const StyledSubtitle = styled('span')`
 
 const StyledTypeBox = styled(Box)(({ theme }) => ({
   display: 'inline-block',
-  border: '1px solid #ccc',
-  borderColor: alpha(theme.palette.primary.main, 0.5),
-  color: alpha(theme.palette.primary.main, 0.8),
-  borderRadius: 4,
+  backgroundColor: alpha(theme.palette.primary.main, 0.12),
+  color: theme.palette.primary.main,
+  borderRadius: 8,
   fontSize: 10,
-  padding: '0 4px',
-  lineHeight: 1.5,
-  marginRight: '8px',
+  fontWeight: 700,
+  padding: '0 6px',
+  lineHeight: 1.6,
+  marginRight: '4px',
+  flexShrink: 0,
 }))

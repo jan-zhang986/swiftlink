@@ -1,5 +1,5 @@
 import { LanOutlined, LanRounded, WarningRounded } from '@mui/icons-material'
-import { Box, Button, ButtonGroup } from '@mui/material'
+import { Box, Button, ButtonBase, alpha, useTheme } from '@mui/material'
 import { useLockFn } from 'ahooks'
 import { useCallback, useEffect, useReducer, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -27,6 +27,7 @@ const isMode = (value: unknown): value is Mode =>
 
 const ProxyPage = () => {
   const { t } = useTranslation()
+  const theme = useTheme()
 
   // 从 localStorage 恢复链式代理按钮状态
   const [isChainMode, setIsChainMode] = useState(() => {
@@ -153,27 +154,67 @@ const ProxyPage = () => {
         )
       }
       header={
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1.5,
+            px: 0.5,
+            py: 0.25,
+          }}
+        >
           <ProviderButton />
 
-          <ButtonGroup size="small">
-            {MODES.map((mode) => (
-              <Button
-                key={mode}
-                variant={mode === curMode ? 'contained' : 'outlined'}
-                onClick={() => onChangeMode(mode)}
-                sx={{ textTransform: 'capitalize' }}
-              >
-                {t(`proxies.page.modes.${mode}`)}
-              </Button>
-            ))}
-          </ButtonGroup>
+          <Box
+            sx={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 0.5,
+              p: '4px',
+              borderRadius: '999px',
+              bgcolor: alpha(theme.palette.text.primary, 0.06),
+            }}
+          >
+            {MODES.map((mode) => {
+              const selected = mode === curMode
+              return (
+                <ButtonBase
+                  key={mode}
+                  onClick={() => onChangeMode(mode)}
+                  sx={{
+                    px: 2.25,
+                    py: 0.75,
+                    minWidth: 72,
+                    borderRadius: '999px',
+                    fontSize: 13,
+                    fontWeight: selected ? 650 : 500,
+                    color: selected ? 'primary.main' : 'text.secondary',
+                    bgcolor: selected ? 'background.paper' : 'transparent',
+                    boxShadow: selected
+                      ? '0 1px 6px rgba(15, 23, 42, 0.08)'
+                      : 'none',
+                    lineHeight: 1.2,
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {t(`proxies.page.modes.${mode}`)}
+                </ButtonBase>
+              )
+            })}
+          </Box>
 
           <Button
             size="small"
             variant={isChainMode ? 'contained' : 'outlined'}
             onClick={onToggleChainMode}
-            sx={{ ml: 1 }}
+            sx={{
+              borderRadius: '999px',
+              textTransform: 'none',
+              fontWeight: 600,
+              px: 1.75,
+              py: 0.75,
+              boxShadow: 'none',
+            }}
             startIcon={
               isChainMode ? (
                 <LanRounded fontSize="small" />

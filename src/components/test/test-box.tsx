@@ -23,16 +23,20 @@ export const TestBox = styled(Box)(({ theme, 'aria-selected': selected }) => {
 
   return {
     position: 'relative',
-    width: '100%',
-    display: 'block',
+    width: 'fit-content',
+    minWidth: 96,
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
     cursor: 'pointer',
-    textAlign: 'left',
+    textAlign: 'center',
     borderRadius: 8,
     boxShadow: theme.shadows[1],
     padding: '8px 16px',
     boxSizing: 'border-box',
     backgroundColor,
     color,
+    whiteSpace: 'nowrap',
     '& h2': { color: h2color },
     transition: 'background-color 0.3s, box-shadow 0.3s',
     '&:hover': {

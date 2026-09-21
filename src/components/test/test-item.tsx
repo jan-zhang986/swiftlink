@@ -58,7 +58,7 @@ export const TestItem = ({ itemData, onEdit, onDelete: removeTest }: Props) => {
   )
 
   return (
-    <Box>
+    <Box sx={{ height: '100%', width: 'fit-content' }}>
       <TestBox
         onContextMenu={(event) => {
           const { clientX, clientY } = event
@@ -67,7 +67,10 @@ export const TestItem = ({ itemData, onEdit, onDelete: removeTest }: Props) => {
           event.preventDefault()
         }}
       >
-        <Box data-sortable-handle sx={{ position: 'relative', cursor: 'move' }}>
+        <Box
+          data-sortable-handle
+          sx={{ position: 'relative', cursor: 'move', flex: 1 }}
+        >
           {icon && icon.trim() !== '' ? (
             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
               {icon.trim().startsWith('http') && (
@@ -94,7 +97,15 @@ export const TestItem = ({ itemData, onEdit, onDelete: removeTest }: Props) => {
             </Box>
           )}
 
-          <Box sx={{ display: 'flex', justifyContent: 'center' }}>{name}</Box>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {name}
+          </Box>
         </Box>
         <Divider sx={{ marginTop: '8px' }} />
         <Box

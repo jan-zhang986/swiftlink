@@ -8,7 +8,7 @@ import iconLight from '@/assets/image/icon_light.svg?react'
 import LogoSvg from '@/assets/image/logo.svg?react'
 import { useVerge } from '@/hooks/use-verge'
 import { useNavMenuOrder } from '@/pages/_layout/hooks'
-import { navItems } from '@/pages/_navigation'
+import { sidebarNavItems } from '@/pages/_navigation'
 
 import { SortableItem } from '../base'
 
@@ -56,7 +56,7 @@ export const LayoutSidebar = (props: LayoutSidebarProps) => {
     resetMenuOrder,
   } = useNavMenuOrder({
     enabled: menuUnlocked,
-    items: navItems,
+    items: sidebarNavItems,
     storedOrder: verge?.menu_order,
     onOptimisticUpdate: handleMenuOrderOptimisticUpdate,
     onPersist: handleMenuOrderPersist,
@@ -96,25 +96,30 @@ export const LayoutSidebar = (props: LayoutSidebarProps) => {
   }, [isCollapsed, patchVerge])
 
   // Navigation menu items
-  const navMenuItems = menuOrder.map((path, index) => {
-    const item = navItemMap.get(path)
-    if (!item) return null
+  const settingsPath = '/settings'
+  const mainMenuItems = menuOrder
+    .filter((path) => path !== settingsPath)
+    .map((path, index) => {
+      const item = navItemMap.get(path)
+      if (!item) return null
 
-    return (
-      <SortableItem
-        key={item.path}
-        id={item.path}
-        index={index}
-        disabled={!menuUnlocked}
-      >
-        {(sortable) => (
-          <LayoutItem to={item.path} icon={item.icon} sortable={sortable}>
-            {t(item.label)}
-          </LayoutItem>
-        )}
-      </SortableItem>
-    )
-  })
+      return (
+        <SortableItem
+          key={item.path}
+          id={item.path}
+          index={index}
+          disabled={!menuUnlocked}
+        >
+          {(sortable) => (
+            <LayoutItem to={item.path} icon={item.icon} sortable={sortable}>
+              {t(item.label)}
+            </LayoutItem>
+          )}
+        </SortableItem>
+      )
+    })
+
+  const settingsItem = navItemMap.get(settingsPath)
 
   return (
     <div className="layout-content__left">
@@ -136,10 +141,11 @@ export const LayoutSidebar = (props: LayoutSidebarProps) => {
               marginTop: '-3px',
               marginRight: '5px',
               marginLeft: '-3px',
+              filter: 'brightness(0) invert(1)',
             }}
             inheritViewBox
           />
-          <LogoSvg fill={isDark ? 'white' : 'black'} />
+          <LogoSvg fill="#ffffff" />
         </div>
         <UpdateButton className="the-newbtn" />
       </div>
@@ -171,7 +177,7 @@ export const LayoutSidebar = (props: LayoutSidebarProps) => {
       {/* Navigation menu */}
       <List className="the-menu" onContextMenu={handleMenuContextMenu}>
         <DragDropProvider sensors={SENSORS} onDragEnd={handleMenuDragEnd}>
-          {navMenuItems}
+          {mainMenuItems}
         </DragDropProvider>
       </List>
 
@@ -216,6 +222,15 @@ export const LayoutSidebar = (props: LayoutSidebarProps) => {
           {t('layout.components.navigation.menu.restoreDefaultOrder')}
         </MenuItem>
       </Menu>
+
+      {/* Settings pinned to the bottom like the reference rail */}
+      {settingsItem && (
+        <List className="the-settings" onContextMenu={handleMenuContextMenu}>
+          <LayoutItem to={settingsItem.path} icon={settingsItem.icon}>
+            {t(settingsItem.label)}
+          </LayoutItem>
+        </List>
+      )}
 
       {/* Traffic */}
       <div className="the-traffic">

@@ -42,7 +42,7 @@ const Layout = () => {
   const { theme } = useCustomTheme()
   const { verge } = useVerge()
   const { language } = verge ?? {}
-  const navCollapsed = verge?.collapse_navbar ?? false
+  const navCollapsed = verge?.collapse_navbar ?? true
   const { switchLanguage } = useI18n()
   const navigate = useNavigate()
   const themeReady = useMemo(() => Boolean(theme), [theme])
@@ -131,6 +131,7 @@ const Layout = () => {
         style={{
           borderTopLeftRadius: '0px',
           borderTopRightRadius: '0px',
+          position: 'relative',
         }}
         onContextMenu={(e) => {
           if (
@@ -144,7 +145,10 @@ const Layout = () => {
           }
         }}
         sx={[
-          ({ palette }) => ({ bgcolor: palette.background.paper }),
+          ({ palette }) => ({
+            bgcolor: palette.background.paper,
+            border: 'none',
+          }),
           OS === 'linux'
             ? {
                 borderRadius: '8px',
@@ -163,7 +167,6 @@ const Layout = () => {
           <LayoutSidebar isDark={isDark} isCollapsed={navCollapsed} />
 
           <div className="layout-content__right">
-            <div className="the-bar"></div>
             <div className="the-content">
               <BaseErrorBoundary>
                 <Outlet />

@@ -343,7 +343,7 @@ impl IVerge {
             tray_icon: Some("monochrome".into()),
             menu_icon: Some("monochrome".into()),
             notice_position: Some("top-right".into()),
-            collapse_navbar: Some(false),
+            collapse_navbar: Some(true),
             common_tray_icon: Some(false),
             sysproxy_tray_icon: Some(false),
             tun_tray_icon: Some(false),

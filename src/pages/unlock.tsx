@@ -1,30 +1,15 @@
-import {
-  AccessTimeOutlined,
-  CancelOutlined,
-  CheckCircleOutlined,
-  HelpOutlined,
-  PendingOutlined,
-  RefreshRounded,
-} from '@mui/icons-material'
-import {
-  Box,
-  Button,
-  Card,
-  Chip,
-  CircularProgress,
-  Divider,
-  Grid,
-  Tooltip,
-  Typography,
-  alpha,
-  useTheme,
-} from '@mui/material'
 import { Channel, invoke } from '@tauri-apps/api/core'
 import { useLockFn } from 'ahooks'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { BaseEmpty, BasePage } from '@/components/base'
+import chatgptIcon from '@/assets/image/test/chatgpt.svg?raw'
+import claudeIcon from '@/assets/image/test/claude.svg?raw'
+import geminiIcon from '@/assets/image/test/gemini.svg?raw'
+import youtubeIcon from '@/assets/image/test/youtube.svg?raw'
+import { BasePage } from '@/components/base'
+import { TestCard } from '@/components/home/test-card'
+import { UnlockTestItem } from '@/components/test/unlock-test-item'
 import { showNotice } from '@/services/notice-service'
 
 interface UnlockItem {
@@ -36,20 +21,19 @@ interface UnlockItem {
 
 const UNLOCK_RESULTS_STORAGE_KEY = 'clash_verge_unlock_results'
 
-const STATUS_LABEL_KEYS: Record<string, string> = {
-  Pending: 'tests.statuses.test.pending',
-  Yes: 'tests.statuses.test.yes',
-  No: 'tests.statuses.test.no',
-  Failed: 'tests.statuses.test.failed',
-  Completed: 'tests.statuses.test.completed',
-  'Disallowed ISP': 'tests.statuses.test.disallowedIsp',
-  'Originals Only': 'tests.statuses.test.originalsOnly',
-  'No (IP Banned By Disney+)': 'tests.statuses.test.noDisney',
-  'Unsupported Country/Region': 'tests.statuses.test.unsupportedRegion',
-  'Failed (Network Connection)': 'tests.statuses.test.failedNetwork',
+const normalizeUnlockName = (name: string) => name.trim().toLowerCase()
+
+const UNLOCK_ICONS: Record<string, string> = {
+  'chatgpt web': chatgptIcon,
+  claude: claudeIcon,
+  gemini: geminiIcon,
+  'youtube premium': youtubeIcon,
 }
 
-const normalizeUnlockName = (name: string) => name.trim().toLowerCase()
+const UNLOCK_LABELS: Record<string, string> = {
+  'chatgpt web': 'ChatGPT',
+  'youtube premium': 'YouTube',
+}
 
 const getStatusPriority = (status: string) => (status === 'Pending' ? 0 : 1)
 const mergeOptionalFields = (preferred: UnlockItem, fallback: UnlockItem) => ({
@@ -91,7 +75,6 @@ const dedupeUnlockItems = (items: UnlockItem[]) => {
 
 const UnlockPage = () => {
   const { t } = useTranslation()
-  const theme = useTheme()
 
   const [unlockItems, setUnlockItems] = useState<UnlockItem[]>([])
   const unlockItemsRef = useRef<UnlockItem[]>([])
@@ -139,7 +122,6 @@ const UnlockPage = () => {
     })()
   }, [])
 
-  // 执行全部项目检测
   const checkAllMedia = useLockFn(async () => {
     const onComplete = new Channel<UnlockItem>((result) => {
       const updatedItems = unlockItemsRef.current.map((item) =>
@@ -170,7 +152,6 @@ const UnlockPage = () => {
     }
   })
 
-  // 检测单个流媒体服务
   const checkSingleMedia = async (name: string) => {
     setLoadingItems((items) => [...items, name])
     try {
@@ -196,214 +177,27 @@ const UnlockPage = () => {
     }
   }
 
-  // 状态颜色
-  const getStatusColor = (status: string) => {
-    if (status === 'Pending') return 'default'
-    if (status === 'Yes') return 'success'
-    if (status === 'No') return 'error'
-    if (status === 'Soon') return 'warning'
-    if (status.includes('Failed')) return 'error'
-    if (status === 'Completed') return 'info'
-    if (
-      status === 'Disallowed ISP' ||
-      status === 'Blocked' ||
-      status === 'Unsupported Country/Region'
-    ) {
-      return 'error'
-    }
-    return 'default'
-  }
-
-  // 状态图标
-  const getStatusIcon = (status: string) => {
-    if (status === 'Pending') return <PendingOutlined />
-    if (status === 'Yes') return <CheckCircleOutlined />
-    if (status === 'No') return <CancelOutlined />
-    if (status === 'Soon') return <AccessTimeOutlined />
-    return <HelpOutlined />
-  }
-
-  // 边框色
-  const getStatusBorderColor = (status: string) => {
-    if (status === 'Yes') return theme.palette.success.main
-    if (status === 'No') return theme.palette.error.main
-    if (status === 'Soon') return theme.palette.warning.main
-    if (status.includes('Failed')) return theme.palette.error.main
-    if (status === 'Completed') return theme.palette.info.main
-    return theme.palette.divider
-  }
-
-  const isDark = theme.palette.mode === 'dark'
-
   return (
-    <BasePage
-      title={t('tests.unlock.page.title')}
-      header={
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Button
-            variant="contained"
-            size="small"
-            disabled={
-              unlockItems.length === 0 ||
-              isCheckingAll ||
-              loadingItems.length > 0
-            }
-            onClick={checkAllMedia}
-            startIcon={
-              isCheckingAll ? (
-                <CircularProgress size={16} color="inherit" />
-              ) : (
-                <RefreshRounded />
-              )
-            }
-          >
-            {isCheckingAll
-              ? t('tests.unlock.page.actions.testing')
-              : t('tests.page.actions.testAll')}
-          </Button>
-        </Box>
-      }
-    >
-      {unlockItems.length === 0 ? (
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '50%',
-          }}
-        >
-          <BaseEmpty textKey="tests.unlock.page.empty" />
-        </Box>
-      ) : (
-        <Grid container spacing={1.5} columns={{ xs: 1, sm: 2, md: 3 }}>
-          {unlockItems.map((item) => (
-            <Grid size={1} key={item.name}>
-              <Card
-                variant="outlined"
-                sx={{
-                  height: '100%',
-                  borderRadius: 2,
-                  borderLeft: `4px solid ${getStatusBorderColor(item.status)}`,
-                  backgroundColor: isDark ? '#282a36' : '#ffffff',
-                  position: 'relative',
-                  overflow: 'hidden',
-                  '&:hover': {
-                    backgroundColor: isDark
-                      ? alpha(theme.palette.primary.dark, 0.05)
-                      : alpha(theme.palette.primary.light, 0.05),
-                  },
-                  display: 'flex',
-                  flexDirection: 'column',
-                }}
-              >
-                <Box sx={{ p: 1.3, flex: 1 }}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 600,
-                        fontSize: '1rem',
-                        color: 'text.primary',
-                      }}
-                    >
-                      {item.name}
-                    </Typography>
-                    <Tooltip title={t('tests.components.item.actions.test')}>
-                      <span>
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          color="primary"
-                          disabled={
-                            loadingItems.includes(item.name) || isCheckingAll
-                          }
-                          sx={{
-                            minWidth: '32px',
-                            width: '32px',
-                            height: '32px',
-                            borderRadius: '50%',
-                          }}
-                          onClick={() => checkSingleMedia(item.name)}
-                        >
-                          <RefreshRounded
-                            sx={{
-                              animation: loadingItems.includes(item.name)
-                                ? 'spin 1s linear infinite'
-                                : 'none',
-                              '@keyframes spin': {
-                                '0%': { transform: 'rotate(0deg)' },
-                                '100%': { transform: 'rotate(360deg)' },
-                              },
-                            }}
-                          />
-                        </Button>
-                      </span>
-                    </Tooltip>
-                  </Box>
-
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      flexWrap: 'wrap',
-                      gap: 1,
-                    }}
-                  >
-                    <Chip
-                      label={t(STATUS_LABEL_KEYS[item.status] ?? item.status)}
-                      color={getStatusColor(item.status)}
-                      size="small"
-                      icon={getStatusIcon(item.status)}
-                      sx={{
-                        fontWeight:
-                          item.status === 'Pending' ? 'normal' : 'bold',
-                      }}
-                    />
-
-                    {item.region && (
-                      <Chip
-                        label={item.region}
-                        size="small"
-                        variant="outlined"
-                        color="info"
-                      />
-                    )}
-                  </Box>
-                </Box>
-
-                <Divider
-                  sx={{
-                    borderStyle: 'dashed',
-                    borderColor: alpha(theme.palette.divider, 0.2),
-                    mx: 1,
-                  }}
-                />
-
-                <Box sx={{ px: 1.5, py: 0.2 }}>
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      display: 'block',
-                      color: 'text.secondary',
-                      fontSize: '0.7rem',
-                      textAlign: 'right',
-                    }}
-                  >
-                    {item.check_time || '-- --'}
-                  </Typography>
-                </Box>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-      )}
+    <BasePage title={t('tests.page.title')}>
+      <TestCard
+        compact={false}
+        onExtraTestAll={() => void checkAllMedia()}
+        extraItems={unlockItems.map((item) => {
+          const key = normalizeUnlockName(item.name)
+          return (
+            <UnlockTestItem
+              key={item.name}
+              name={UNLOCK_LABELS[key] ?? item.name}
+              status={item.status}
+              region={item.region}
+              icon={UNLOCK_ICONS[key]}
+              loading={loadingItems.includes(item.name) || isCheckingAll}
+              disabled={isCheckingAll}
+              onTest={() => void checkSingleMedia(item.name)}
+            />
+          )
+        })}
+      />
     </BasePage>
   )
 }

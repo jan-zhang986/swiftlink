@@ -26,6 +26,14 @@ import type { MonacoEditorInstance, MonacoMarker } from '@/types/monaco'
 import debounce from '@/utils/debounce'
 import { MONACO_FONT_FAMILY } from '@/utils/font-family'
 
+import {
+  compactActionBtnSx,
+  compactActionContainedSx,
+  compactDialogTitleSx,
+  compactEditorContentSx,
+  compactEditorPaperSx,
+} from './compact-editor-dialog'
+
 const appWindow = getCurrentWebviewWindow()
 
 type EditorLanguage = 'yaml' | 'javascript' | 'css'
@@ -192,19 +200,28 @@ export const EditorViewer = ({
     <Dialog
       open={open}
       onClose={handleClose}
-      maxWidth="xl"
-      fullWidth
+      maxWidth={false}
       disableEnforceFocus
+      slotProps={{
+        paper: {
+          sx: {
+            ...compactEditorPaperSx,
+            width: isMaximized ? 'calc(100vw - 48px)' : 720,
+            height: isMaximized ? 'calc(100vh - 48px)' : undefined,
+            maxHeight: 'calc(100vh - 48px)',
+          },
+        },
+      }}
     >
-      <DialogTitle>{resolvedTitle}</DialogTitle>
+      <DialogTitle sx={compactDialogTitleSx}>{resolvedTitle}</DialogTitle>
 
       <DialogContent
         sx={{
-          width: 'auto',
-          height: 'calc(100vh - 185px)',
-          display: 'flex',
+          ...compactEditorContentSx,
           flexDirection: 'column',
           overflow: 'hidden',
+          height: isMaximized ? '100%' : 'min(52vh, 460px)',
+          flex: 1,
         }}
       >
         <div style={{ position: 'relative', flex: '1 1 auto', minHeight: 0 }}>
@@ -298,7 +315,7 @@ export const EditorViewer = ({
         </ButtonGroup>
       </DialogContent>
 
-      <DialogActions>
+      <DialogActions sx={{ px: 2, pb: 1.5, pt: 0.75, gap: 1 }}>
         {!readOnly && onResetToDefault && (
           <Button
             onClick={onResetToDefault}
@@ -306,11 +323,16 @@ export const EditorViewer = ({
             color="warning"
             startIcon={<RestartAltRounded />}
             disabled={loading}
+            sx={compactActionBtnSx}
           >
             {t('shared.actions.resetToDefault')}
           </Button>
         )}
-        <Button onClick={handleClose} variant="outlined">
+        <Button
+          onClick={handleClose}
+          variant="outlined"
+          sx={compactActionBtnSx}
+        >
           {t(readOnly ? 'shared.actions.close' : 'shared.actions.cancel')}
         </Button>
         {!readOnly && (
@@ -320,6 +342,7 @@ export const EditorViewer = ({
             }}
             variant="contained"
             disabled={disableSave}
+            sx={compactActionContainedSx}
           >
             {t('shared.actions.save')}
           </Button>

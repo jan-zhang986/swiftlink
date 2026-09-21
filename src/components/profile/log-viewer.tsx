@@ -13,6 +13,12 @@ import { useTranslation } from 'react-i18next'
 
 import { BaseEmpty } from '@/components/base'
 
+import {
+  compactActionBtnSx,
+  compactDialogTitleSx,
+  compactEditorPaperSx,
+} from './compact-editor-dialog'
+
 interface Props {
   open: boolean
   logInfo: [string, string][]
@@ -25,16 +31,29 @@ export const LogViewer = (props: Props) => {
   const { t } = useTranslation()
 
   return (
-    <Dialog open={open} onClose={onClose}>
-      <DialogTitle>{t('profiles.modals.logViewer.title')}</DialogTitle>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      slotProps={{
+        paper: {
+          sx: {
+            ...compactEditorPaperSx,
+            width: 480,
+          },
+        },
+      }}
+    >
+      <DialogTitle sx={compactDialogTitleSx}>
+        {t('profiles.modals.logViewer.title')}
+      </DialogTitle>
 
       <DialogContent
         sx={{
-          width: 400,
-          height: 300,
+          px: 2,
+          pb: 0.75,
+          height: 'min(40vh, 280px)',
           overflowX: 'hidden',
           userSelect: 'text',
-          pb: 1,
         }}
       >
         {logInfo.map(([level, log]) => (
@@ -60,8 +79,8 @@ export const LogViewer = (props: Props) => {
         {logInfo.length === 0 && <BaseEmpty />}
       </DialogContent>
 
-      <DialogActions>
-        <Button onClick={onClose} variant="outlined">
+      <DialogActions sx={{ px: 2, pb: 1.5, pt: 0.75 }}>
+        <Button onClick={onClose} variant="outlined" sx={compactActionBtnSx}>
           {t('shared.actions.close')}
         </Button>
       </DialogActions>

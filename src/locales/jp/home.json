@@ -24,7 +24,29 @@
       },
       "title": "ホーム設定"
     },
-    "title": "ホーム"
+    "title": "ホーム",
+    "greeting": "Hi!",
+    "usingVpn": "{{name}} を使用中",
+    "noVpn": "未接続",
+    "dashboard": {
+      "vpn": "VPN Network",
+      "onlineTime": "Online time",
+      "currentMode": "Current mode",
+      "currentServer": "Current server",
+      "captureSystem": "System",
+      "captureTun": "TUN",
+      "toolbox": "Toolbox",
+      "recommended": "Recommended",
+      "allApps": "All apps",
+      "tools": {
+        "diagnose": "Network check",
+        "security": "Security check",
+        "trust": "Trusted devices",
+        "guest": "Guest Wi-Fi",
+        "staff": "Staff Wi-Fi",
+        "feedback": "Feedback"
+      }
+    }
   },
   "components": {
     "proxyTun": {

@@ -11,11 +11,8 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  List,
-  ListItem,
-  ListItemText,
   TextField,
-  styled,
+  Typography,
 } from '@mui/material'
 import { useLockFn } from 'ahooks'
 import * as yaml from 'js-yaml'
@@ -41,6 +38,16 @@ import getSystem from '@/utils/get-system'
 import { isValidIpCidr } from '@/utils/network'
 import { parseYamlSafe } from '@/utils/yaml'
 
+import {
+  compactActionBtnSx,
+  compactActionContainedSx,
+  compactDialogTitleSx,
+  compactEditorContentSx,
+  compactEditorPaperSx,
+  compactFieldInputSx,
+  compactSelectPopupIcon,
+  compactSelectSlotProps,
+} from './compact-editor-dialog'
 import {
   buildGroupedItems,
   type GroupedVirtualItem,
@@ -587,48 +594,78 @@ export const RulesEditorViewer = (props: Props) => {
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth="xl"
+      maxWidth="sm"
       fullWidth
       disableEnforceFocus={!visualization}
+      slotProps={{
+        paper: {
+          sx: compactEditorPaperSx,
+        },
+      }}
     >
-      <DialogTitle>
-        {
-          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-            {t('rules.modals.editor.title')}
-            <Box>
-              <Button
-                variant="contained"
-                size="small"
-                onClick={handleVisualizationToggle}
-              >
-                {visualization
-                  ? t('shared.editorModes.advanced')
-                  : t('shared.editorModes.visualization')}
-              </Button>
-            </Box>
-          </Box>
-        }
+      <DialogTitle
+        sx={{
+          ...compactDialogTitleSx,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 1,
+        }}
+      >
+        {t('rules.modals.editor.title')}
+        <Button
+          variant="outlined"
+          size="small"
+          onClick={handleVisualizationToggle}
+          sx={{
+            borderRadius: '10px',
+            textTransform: 'none',
+            fontWeight: 600,
+          }}
+        >
+          {visualization
+            ? t('shared.editorModes.advanced')
+            : t('shared.editorModes.visualization')}
+        </Button>
       </DialogTitle>
 
       <DialogContent
-        sx={{ display: 'flex', width: 'auto', height: 'calc(100vh - 185px)' }}
+        sx={{
+          ...compactEditorContentSx,
+          gap: 1.5,
+        }}
       >
         {visualization ? (
           <>
-            <List
+            <Box
               sx={{
-                width: '50%',
-                padding: '0 10px',
+                width: { xs: '100%', sm: 232 },
+                flexShrink: 0,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 1.15,
               }}
             >
-              <Item>
-                <ListItemText
-                  primary={t('rules.modals.editor.form.labels.type')}
-                />
+              <Box>
+                <Typography
+                  sx={{
+                    mb: 0.5,
+                    fontSize: 12,
+                    fontWeight: 650,
+                    color: 'text.secondary',
+                  }}
+                >
+                  {t('rules.modals.editor.form.labels.type')}
+                </Typography>
                 <Autocomplete
                   size="small"
-                  sx={{ minWidth: '240px' }}
-                  renderInput={(params) => <TextField {...params} />}
+                  fullWidth
+                  disableClearable
+                  popupIcon={compactSelectPopupIcon}
+                  slotProps={compactSelectSlotProps}
+                  renderInput={(params) => (
+                    <TextField {...params} sx={compactFieldInputSx} />
+                  )}
                   options={rules}
                   value={ruleType}
                   getOptionLabel={(option) =>
@@ -647,56 +684,85 @@ export const RulesEditorViewer = (props: Props) => {
                   }}
                   onChange={(_, value) => value && setRuleType(value)}
                 />
-              </Item>
-              <Item
-                sx={{ display: !(ruleType.required ?? true) ? 'none' : '' }}
-              >
-                <ListItemText
-                  primary={t('rules.modals.editor.form.labels.content')}
-                />
-
-                {ruleType.name === 'RULE-SET' && (
-                  <Autocomplete
-                    size="small"
-                    sx={{ minWidth: '240px' }}
-                    renderInput={(params) => <TextField {...params} />}
-                    options={ruleSetList}
-                    value={ruleContent}
-                    onChange={(_, value) => value && setRuleContent(value)}
-                  />
-                )}
-                {ruleType.name === 'SUB-RULE' && (
-                  <Autocomplete
-                    size="small"
-                    sx={{ minWidth: '240px' }}
-                    renderInput={(params) => <TextField {...params} />}
-                    options={subRuleList}
-                    value={ruleContent}
-                    onChange={(_, value) => value && setRuleContent(value)}
-                  />
-                )}
-                {ruleType.name !== 'RULE-SET' &&
-                  ruleType.name !== 'SUB-RULE' && (
-                    <TextField
-                      autoComplete="new-password"
+              </Box>
+              {(ruleType.required ?? true) && (
+                <Box>
+                  <Typography
+                    sx={{
+                      mb: 0.5,
+                      fontSize: 12,
+                      fontWeight: 650,
+                      color: 'text.secondary',
+                    }}
+                  >
+                    {t('rules.modals.editor.form.labels.content')}
+                  </Typography>
+                  {ruleType.name === 'RULE-SET' && (
+                    <Autocomplete
                       size="small"
-                      sx={{ minWidth: '240px' }}
+                      fullWidth
+                      disableClearable
+                      popupIcon={compactSelectPopupIcon}
+                      slotProps={compactSelectSlotProps}
+                      renderInput={(params) => (
+                        <TextField {...params} sx={compactFieldInputSx} />
+                      )}
+                      options={ruleSetList}
                       value={ruleContent}
-                      required={ruleType.required ?? true}
-                      error={(ruleType.required ?? true) && !ruleContent}
-                      placeholder={ruleType.example}
-                      onChange={(e) => setRuleContent(e.target.value)}
+                      onChange={(_, value) => value && setRuleContent(value)}
                     />
                   )}
-              </Item>
-              <Item>
-                <ListItemText
-                  primary={t('rules.modals.editor.form.labels.proxyPolicy')}
-                />
+                  {ruleType.name === 'SUB-RULE' && (
+                    <Autocomplete
+                      size="small"
+                      fullWidth
+                      disableClearable
+                      popupIcon={compactSelectPopupIcon}
+                      slotProps={compactSelectSlotProps}
+                      renderInput={(params) => (
+                        <TextField {...params} sx={compactFieldInputSx} />
+                      )}
+                      options={subRuleList}
+                      value={ruleContent}
+                      onChange={(_, value) => value && setRuleContent(value)}
+                    />
+                  )}
+                  {ruleType.name !== 'RULE-SET' &&
+                    ruleType.name !== 'SUB-RULE' && (
+                      <TextField
+                        autoComplete="new-password"
+                        size="small"
+                        fullWidth
+                        sx={compactFieldInputSx}
+                        value={ruleContent}
+                        required={ruleType.required ?? true}
+                        error={(ruleType.required ?? true) && !ruleContent}
+                        placeholder={ruleType.example}
+                        onChange={(e) => setRuleContent(e.target.value)}
+                      />
+                    )}
+                </Box>
+              )}
+              <Box>
+                <Typography
+                  sx={{
+                    mb: 0.5,
+                    fontSize: 12,
+                    fontWeight: 650,
+                    color: 'text.secondary',
+                  }}
+                >
+                  {t('rules.modals.editor.form.labels.proxyPolicy')}
+                </Typography>
                 <Autocomplete
                   size="small"
-                  sx={{ minWidth: '240px' }}
-                  renderInput={(params) => <TextField {...params} />}
+                  fullWidth
+                  disableClearable
+                  popupIcon={compactSelectPopupIcon}
+                  slotProps={compactSelectSlotProps}
+                  renderInput={(params) => (
+                    <TextField {...params} sx={compactFieldInputSx} />
+                  )}
                   options={proxyPolicyList}
                   value={proxyPolicy}
                   getOptionLabel={(option) =>
@@ -713,22 +779,35 @@ export const RulesEditorViewer = (props: Props) => {
                   }}
                   onChange={(_, value) => value && setProxyPolicy(value)}
                 />
-              </Item>
+              </Box>
               {ruleType.noResolve && (
-                <Item>
-                  <ListItemText
-                    primary={t('rules.modals.editor.form.toggles.noResolve')}
-                  />
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    px: 0.25,
+                  }}
+                >
+                  <Typography sx={{ fontSize: 13, fontWeight: 600 }}>
+                    {t('rules.modals.editor.form.toggles.noResolve')}
+                  </Typography>
                   <Switch
                     checked={noResolve}
                     onChange={() => setNoResolve(!noResolve)}
                   />
-                </Item>
+                </Box>
               )}
-              <Item>
+              <Box
+                sx={{
+                  mt: 'auto',
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr',
+                  gap: 1,
+                }}
+              >
                 <Button
-                  fullWidth
-                  variant="contained"
+                  variant="outlined"
                   startIcon={<VerticalAlignTopRounded />}
                   onClick={() => {
                     try {
@@ -739,13 +818,17 @@ export const RulesEditorViewer = (props: Props) => {
                       showNotice.error(err)
                     }
                   }}
+                  sx={{
+                    borderRadius: '10px',
+                    textTransform: 'none',
+                    fontWeight: 600,
+                    fontSize: 12,
+                    px: 1,
+                  }}
                 >
                   {t('rules.modals.editor.form.actions.prependRule')}
                 </Button>
-              </Item>
-              <Item>
                 <Button
-                  fullWidth
                   variant="contained"
                   startIcon={<VerticalAlignBottomRounded />}
                   onClick={() => {
@@ -757,26 +840,40 @@ export const RulesEditorViewer = (props: Props) => {
                       showNotice.error(err)
                     }
                   }}
+                  sx={{
+                    borderRadius: '10px',
+                    boxShadow: 'none',
+                    textTransform: 'none',
+                    fontWeight: 600,
+                    fontSize: 12,
+                    px: 1,
+                  }}
                 >
                   {t('rules.modals.editor.form.actions.appendRule')}
                 </Button>
-              </Item>
-            </List>
+              </Box>
+            </Box>
 
-            <List
+            <Box
               sx={{
-                width: '50%',
-                padding: '0 10px',
+                flex: 1,
+                minWidth: 0,
+                display: 'flex',
+                flexDirection: 'column',
+                borderRadius: '14px',
+                bgcolor: 'action.hover',
+                p: 1,
               }}
             >
               <BaseSearchBox onSearch={(match) => setMatch(() => match)} />
               <GroupedVirtualList
                 items={items}
+                estimateSize={48}
                 renderItem={renderItem}
                 onReorder={onReorder}
-                style={{ height: 'calc(100% - 24px)', marginTop: '8px' }}
+                style={{ flex: 1, minHeight: 0, marginTop: 8 }}
               />
-            </List>
+            </Box>
           </>
         ) : (
           <MonacoEditor
@@ -810,19 +907,19 @@ export const RulesEditorViewer = (props: Props) => {
         )}
       </DialogContent>
 
-      <DialogActions>
-        <Button onClick={onClose} variant="outlined">
+      <DialogActions sx={{ px: 2, pb: 1.5, pt: 0.75, gap: 1 }}>
+        <Button onClick={onClose} variant="outlined" sx={compactActionBtnSx}>
           {t('shared.actions.cancel')}
         </Button>
 
-        <Button onClick={handleSave} variant="contained">
+        <Button
+          onClick={handleSave}
+          variant="contained"
+          sx={compactActionContainedSx}
+        >
           {t('shared.actions.save')}
         </Button>
       </DialogActions>
     </Dialog>
   )
 }
-
-const Item = styled(ListItem)(() => ({
-  padding: '5px 2px',
-}))

@@ -21,6 +21,16 @@ const RESIZE_HANDLES = [
   { direction: 'NorthWest', position: 'north-west' },
 ] as const
 
+const macTrafficLight = (color: string) => ({
+  width: 16,
+  height: 16,
+  borderRadius: '50%',
+  bgcolor: color,
+  cursor: 'pointer',
+  flexShrink: 0,
+  boxShadow: '0 0 0 0.5px rgba(0, 0, 0, 0.18)',
+})
+
 export const WindowResizeHandles = () => {
   const { currentWindow, maximized } = useWindowControls()
 
@@ -99,10 +109,12 @@ export const WindowControls = forwardRef(function WindowControls(props, ref) {
 
   return (
     <Box
+      className="window-controls"
       sx={{
         display: 'flex',
-        gap: 1,
+        gap: OS === 'macos' ? '8px' : 1,
         alignItems: 'center',
+        pointerEvents: 'auto',
         '> button': {
           cursor: 'default',
         },
@@ -110,24 +122,17 @@ export const WindowControls = forwardRef(function WindowControls(props, ref) {
     >
       {OS === 'macos' && (
         <>
-          {/* macOS 风格：关闭 → 最小化 → 全屏 */}
-          <IconButton size="small" sx={{ fontSize: 14 }} onClick={close}>
-            <Close fontSize="inherit" color="inherit" />
-          </IconButton>
-          <IconButton size="small" sx={{ fontSize: 14 }} onClick={minimize}>
-            <Minimize fontSize="inherit" color="inherit" />
-          </IconButton>
-          <IconButton
-            size="small"
-            sx={{ fontSize: 14 }}
+          <Box onClick={close} title="Close" sx={macTrafficLight('#FF5F57')} />
+          <Box
+            onClick={minimize}
+            title="Minimize"
+            sx={macTrafficLight('#FEBC2E')}
+          />
+          <Box
             onClick={toggleMaximize}
-          >
-            {maximized ? (
-              <FilterNone fontSize="inherit" color="inherit" />
-            ) : (
-              <CropSquare fontSize="inherit" color="inherit" />
-            )}
-          </IconButton>
+            title="Zoom"
+            sx={macTrafficLight('#28C840')}
+          />
         </>
       )}
 

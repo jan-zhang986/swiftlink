@@ -20,6 +20,9 @@ import {
   type ProxyGroupView,
   type ResolvedProxyMember,
 } from '@/types/proxy-view'
+import { splitProxyFlag } from '@/utils/proxy-flag'
+
+import { ProxyNodeFlag } from './proxy-node-flag'
 
 interface Props {
   group: ProxyGroupView
@@ -33,19 +36,18 @@ interface Props {
 const Widget = styled(Box)(() => ({
   padding: '3px 6px',
   fontSize: 14,
-  borderRadius: '4px',
+  borderRadius: '8px',
 }))
 
 const TypeBox = styled('span')(({ theme }) => ({
   display: 'inline-block',
-  border: '1px solid #ccc',
-  borderColor: alpha(theme.palette.text.secondary, 0.36),
-  color: alpha(theme.palette.text.secondary, 0.42),
-  borderRadius: 4,
+  color: theme.palette.text.secondary,
+  backgroundColor: alpha(theme.palette.text.primary, 0.06),
+  borderRadius: 8,
   fontSize: 10,
   marginRight: '4px',
-  padding: '0 2px',
-  lineHeight: 1.25,
+  padding: '0 6px',
+  lineHeight: 1.6,
 }))
 
 export const ProxyItem = (props: Props) => {
@@ -54,10 +56,10 @@ export const ProxyItem = (props: Props) => {
   const details = memberDetails(member)
   const unresolved = member.kind === 'unresolved'
   const name = member.ref.name
+  const { label, iso } = splitProxyFlag(name)
   const type = unresolved ? member.ref.reason : (details?.type ?? '')
   const now = member.kind === 'group' ? member.group.now : undefined
 
-  // -1/<=0 为不显示，-2 为 loading
   const { delayValue, isPreset, timeout, onDelay } = useProxyDelayState(
     member,
     group.name,
@@ -71,10 +73,9 @@ export const ProxyItem = (props: Props) => {
         selected={!unresolved && selected}
         onClick={unresolved ? undefined : () => onClick?.(member)}
         sx={[
-          { borderRadius: 1 },
+          { borderRadius: '16px', gap: 1, px: 1.25 },
           ({ palette: { mode, primary } }) => {
-            const bgcolor = mode === 'light' ? '#ffffff' : '#24252f'
-            const selectColor = mode === 'light' ? primary.main : primary.light
+            const bgcolor = mode === 'light' ? '#ffffff' : '#282A36'
             const showDelay = delayValue > 0
 
             return {
@@ -82,35 +83,69 @@ export const ProxyItem = (props: Props) => {
               '&:hover .the-delay': { display: showDelay ? 'block' : 'none' },
               '&:hover .the-icon': { display: 'none' },
               '&.Mui-selected': {
-                width: `calc(100% + 3px)`,
-                marginLeft: `-3px`,
-                borderLeft: `3px solid ${selectColor}`,
                 bgcolor:
                   mode === 'light'
-                    ? alpha(primary.main, 0.15)
-                    : alpha(primary.main, 0.35),
+                    ? alpha(primary.main, 0.1)
+                    : alpha(primary.main, 0.22),
+                outline: `2px solid ${primary.main}`,
+                outlineOffset: -2,
               },
               backgroundColor: bgcolor,
               marginBottom: '8px',
-              height: '40px',
+              height: '48px',
             }
           },
         ]}
       >
+        <ProxyNodeFlag name={name} size={30} />
         <ListItemText
           title={name}
           secondary={
             <>
               <Box
                 sx={{
-                  display: 'inline-block',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 0.6,
                   marginRight: '8px',
                   fontSize: '14px',
+                  fontWeight: 650,
                   color: 'text.primary',
+                  maxWidth: '100%',
                 }}
               >
-                {name}
-                {showType && now && ` - ${now}`}
+                <Box
+                  component="span"
+                  sx={{
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {label}
+                  {showType && now && ` - ${now}`}
+                </Box>
+                {iso ? (
+                  <Box
+                    component="span"
+                    sx={{
+                      flexShrink: 0,
+                      px: 0.6,
+                      height: 16,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      borderRadius: '6px',
+                      fontSize: 10,
+                      fontWeight: 700,
+                      letterSpacing: '0.04em',
+                      color: 'primary.main',
+                      bgcolor: (theme) =>
+                        alpha(theme.palette.primary.main, 0.12),
+                    }}
+                  >
+                    {iso}
+                  </Box>
+                ) : null}
               </Box>
               {showType && <TypeBox>{type}</TypeBox>}
               {!unresolved && showType && details?.udp && (
@@ -154,7 +189,7 @@ export const ProxyItem = (props: Props) => {
                 void onDelay()
               }}
               sx={({ palette }) => ({
-                display: 'none', // hover 时显示
+                display: 'none',
                 ':hover': { bgcolor: alpha(palette.primary.main, 0.15) },
               })}
             >
@@ -163,7 +198,6 @@ export const ProxyItem = (props: Props) => {
           )}
 
           {!unresolved && delayValue > 0 && (
-            // 显示延迟
             <Widget
               className="the-delay"
               onClick={(e) => {
@@ -181,7 +215,6 @@ export const ProxyItem = (props: Props) => {
           )}
 
           {!unresolved && delayValue !== -2 && delayValue <= 0 && selected && (
-            // 展示已选择的 icon
             <CheckCircleOutlineRounded
               className="the-icon"
               sx={{ fontSize: 16 }}

@@ -24,7 +24,29 @@
       },
       "title": "홈 설정"
     },
-    "title": "홈"
+    "title": "홈",
+    "greeting": "Hi!",
+    "usingVpn": "{{name}} 사용 중",
+    "noVpn": "연결 안 됨",
+    "dashboard": {
+      "vpn": "VPN Network",
+      "onlineTime": "Online time",
+      "currentMode": "Current mode",
+      "currentServer": "Current server",
+      "captureSystem": "System",
+      "captureTun": "TUN",
+      "toolbox": "Toolbox",
+      "recommended": "Recommended",
+      "allApps": "All apps",
+      "tools": {
+        "diagnose": "Network check",
+        "security": "Security check",
+        "trust": "Trusted devices",
+        "guest": "Guest Wi-Fi",
+        "staff": "Staff Wi-Fi",
+        "feedback": "Feedback"
+      }
+    }
   },
   "components": {
     "proxyTun": {

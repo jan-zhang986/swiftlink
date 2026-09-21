@@ -25,7 +25,7 @@ import { version as appVersion } from '@root/package.json'
 
 import { EnhancedCard } from './enhanced-card'
 
-export const SystemInfoCard = () => {
+export const SystemInfoCard = ({ plain = false }: { plain?: boolean }) => {
   const { t } = useTranslation()
   const { verge, patchVerge } = useVerge()
   const navigate = useNavigate()
@@ -188,6 +188,88 @@ export const SystemInfoCard = () => {
 
   if (!verge) return null
 
+  const body = (
+    <Stack spacing={1.5}>
+      <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
+        <Typography variant="body2" color="text.secondary">
+          {t('home.components.systemInfo.fields.osInfo')}
+        </Typography>
+        <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+          {osInfo}
+        </Typography>
+      </Stack>
+      <Divider />
+      <Stack
+        direction="row"
+        sx={{ justifyContent: 'space-between', alignItems: 'center' }}
+      >
+        <Typography variant="body2" color="text.secondary">
+          {t('home.components.systemInfo.fields.autoLaunch')}
+        </Typography>
+        <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+          <Chip
+            size="small"
+            label={
+              autoLaunchEnabled
+                ? t('shared.statuses.enabled')
+                : t('shared.statuses.disabled')
+            }
+            color={autoLaunchEnabled ? 'success' : 'default'}
+            variant={autoLaunchEnabled ? 'filled' : 'outlined'}
+            onClick={toggleAutoLaunch}
+            sx={{ cursor: 'pointer' }}
+          />
+        </Stack>
+      </Stack>
+      <Divider />
+      <Stack
+        direction="row"
+        sx={{ justifyContent: 'space-between', alignItems: 'center' }}
+      >
+        <Typography variant="body2" color="text.secondary">
+          {t('home.components.systemInfo.fields.runningMode')}
+        </Typography>
+        <Typography
+          variant="body2"
+          onClick={handleRunningModeClick}
+          sx={{ ...runningModeStyle, fontWeight: 'medium' }}
+        >
+          {getModeIcon()}
+          {getModeText()}
+        </Typography>
+      </Stack>
+      <Divider />
+      <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
+        <Typography variant="body2" color="text.secondary">
+          {t('home.components.systemInfo.fields.lastCheckUpdate')}
+        </Typography>
+        <Typography
+          variant="body2"
+          onClick={onCheckUpdate}
+          sx={{
+            cursor: 'pointer',
+            textDecoration: 'underline',
+            fontWeight: 'medium',
+            '&:hover': { opacity: 0.7 },
+          }}
+        >
+          {lastCheckUpdateText}
+        </Typography>
+      </Stack>
+      <Divider />
+      <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
+        <Typography variant="body2" color="text.secondary">
+          {t('home.components.systemInfo.fields.vergeVersion')}
+        </Typography>
+        <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+          v{appVersion}
+        </Typography>
+      </Stack>
+    </Stack>
+  )
+
+  if (plain) return body
+
   return (
     <EnhancedCard
       title={t('home.components.systemInfo.title')}
@@ -203,83 +285,7 @@ export const SystemInfoCard = () => {
         </IconButton>
       }
     >
-      <Stack spacing={1.5}>
-        <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
-          <Typography variant="body2" color="text.secondary">
-            {t('home.components.systemInfo.fields.osInfo')}
-          </Typography>
-          <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
-            {osInfo}
-          </Typography>
-        </Stack>
-        <Divider />
-        <Stack
-          direction="row"
-          sx={{ justifyContent: 'space-between', alignItems: 'center' }}
-        >
-          <Typography variant="body2" color="text.secondary">
-            {t('home.components.systemInfo.fields.autoLaunch')}
-          </Typography>
-          <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-            <Chip
-              size="small"
-              label={
-                autoLaunchEnabled
-                  ? t('shared.statuses.enabled')
-                  : t('shared.statuses.disabled')
-              }
-              color={autoLaunchEnabled ? 'success' : 'default'}
-              variant={autoLaunchEnabled ? 'filled' : 'outlined'}
-              onClick={toggleAutoLaunch}
-              sx={{ cursor: 'pointer' }}
-            />
-          </Stack>
-        </Stack>
-        <Divider />
-        <Stack
-          direction="row"
-          sx={{ justifyContent: 'space-between', alignItems: 'center' }}
-        >
-          <Typography variant="body2" color="text.secondary">
-            {t('home.components.systemInfo.fields.runningMode')}
-          </Typography>
-          <Typography
-            variant="body2"
-            onClick={handleRunningModeClick}
-            sx={{ ...runningModeStyle, fontWeight: 'medium' }}
-          >
-            {getModeIcon()}
-            {getModeText()}
-          </Typography>
-        </Stack>
-        <Divider />
-        <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
-          <Typography variant="body2" color="text.secondary">
-            {t('home.components.systemInfo.fields.lastCheckUpdate')}
-          </Typography>
-          <Typography
-            variant="body2"
-            onClick={onCheckUpdate}
-            sx={{
-              cursor: 'pointer',
-              textDecoration: 'underline',
-              fontWeight: 'medium',
-              '&:hover': { opacity: 0.7 },
-            }}
-          >
-            {lastCheckUpdateText}
-          </Typography>
-        </Stack>
-        <Divider />
-        <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
-          <Typography variant="body2" color="text.secondary">
-            {t('home.components.systemInfo.fields.vergeVersion')}
-          </Typography>
-          <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
-            v{appVersion}
-          </Typography>
-        </Stack>
-      </Stack>
+      {body}
     </EnhancedCard>
   )
 }

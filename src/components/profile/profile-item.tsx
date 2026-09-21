@@ -10,7 +10,6 @@ import {
   CircularProgress,
   IconButton,
   keyframes,
-  LinearProgress,
   Menu,
   MenuItem,
   Typography,
@@ -251,10 +250,17 @@ const ProfileItemBase = (props: ProfileItemProps) => {
   const from = parseUrl(itemData.url)
   const description = itemData.desc
   const expire = parseExpire(extra?.expire)
-  const progress = Math.min(
-    Math.round(((download + upload) * 100) / (total + 0.01)) + 1,
-    100,
-  )
+  const usedBytes = upload + download
+  const [usedValue, usedUnit] = parseTraffic(usedBytes)
+  const [totalValue, totalUnit] = parseTraffic(total)
+  const progress =
+    total > 0 ? Math.min(100, Math.round((usedBytes / total) * 100)) : 0
+  const trafficColor =
+    progress >= 90
+      ? 'error.main'
+      : progress >= 70
+        ? 'warning.main'
+        : 'primary.main'
 
   const loading = loadingCache.has(itemData.uid)
 
@@ -582,10 +588,11 @@ const ProfileItemBase = (props: ProfileItemProps) => {
   ]
 
   const boxStyle = {
-    height: 26,
+    minHeight: 22,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: 1,
   }
 
   const handleSaveProfileDocument = useLockFn(async () => {
@@ -621,7 +628,7 @@ const ProfileItemBase = (props: ProfileItemProps) => {
   })
 
   return (
-    <Box ref={setElement} sx={{ position: 'relative', borderRadius: '8px' }}>
+    <Box ref={setElement} sx={{ position: 'relative', borderRadius: '18px' }}>
       <ProfileBox
         aria-selected={selected}
         onClick={(e) => {
@@ -691,21 +698,22 @@ const ProfileItemBase = (props: ProfileItemProps) => {
               }}
             >
               <DragIndicatorRounded
-                sx={[
-                  { cursor: 'move', marginLeft: '-6px' },
-                  ({ palette: { text } }) => {
-                    return { color: text.primary }
-                  },
-                ]}
+                sx={{
+                  cursor: 'move',
+                  marginLeft: '-6px',
+                  fontSize: 18,
+                  color: 'text.disabled',
+                }}
               />
             </Box>
 
             <Typography
               sx={{
                 width: batchMode ? 'calc(100% - 56px)' : 'calc(100% - 36px)',
-                fontSize: '18px',
-                fontWeight: '600',
-                lineHeight: '26px',
+                fontSize: 15,
+                fontWeight: 650,
+                lineHeight: '22px',
+                letterSpacing: '-0.02em',
               }}
               variant="h6"
               component="h2"
@@ -748,7 +756,7 @@ const ProfileItemBase = (props: ProfileItemProps) => {
                 <Typography
                   noWrap
                   title={description}
-                  sx={{ fontSize: '14px' }}
+                  sx={{ fontSize: 13, color: 'text.secondary' }}
                 >
                   {description}
                 </Typography>
@@ -757,6 +765,7 @@ const ProfileItemBase = (props: ProfileItemProps) => {
                   <Typography
                     noWrap
                     title={`${t('shared.labels.from')} ${from}`}
+                    sx={{ fontSize: 13, color: 'text.secondary' }}
                   >
                     {from}
                   </Typography>
@@ -779,7 +788,7 @@ const ProfileItemBase = (props: ProfileItemProps) => {
                         : `${t('shared.labels.updateTime')}: ${parseExpire(updated)}\n${t('profiles.components.profileItem.tooltips.showNext')}`
                     }
                     sx={{
-                      fontSize: 14,
+                      fontSize: 12,
                       textAlign: 'right',
                       cursor: 'pointer',
                       display: 'inline-block',
@@ -804,24 +813,142 @@ const ProfileItemBase = (props: ProfileItemProps) => {
           }
         </Box>
         {hasExtra ? (
-          <Box sx={{ ...boxStyle, fontSize: 14 }}>
-            <span title={t('shared.labels.usedTotal')}>
-              {parseTraffic(upload + download)} / {parseTraffic(total)}
-            </span>
-            <span title={t('shared.labels.expireTime')}>{expire}</span>
+          <Box sx={{ mt: 1.35 }} title={t('shared.labels.usedTotal')}>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'baseline',
+                justifyContent: 'space-between',
+                gap: 1,
+                mb: 0.85,
+              }}
+            >
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'baseline',
+                  minWidth: 0,
+                  gap: 0.4,
+                }}
+              >
+                <Typography
+                  component="span"
+                  sx={{
+                    fontSize: 20,
+                    fontWeight: 700,
+                    letterSpacing: '-0.04em',
+                    lineHeight: 1,
+                    color: 'text.primary',
+                  }}
+                >
+                  {usedValue}
+                </Typography>
+                <Typography
+                  component="span"
+                  sx={{
+                    fontSize: 11,
+                    fontWeight: 650,
+                    color: 'text.secondary',
+                  }}
+                >
+                  {usedUnit}
+                </Typography>
+                <Typography
+                  component="span"
+                  sx={{
+                    mx: 0.35,
+                    fontSize: 12,
+                    color: 'text.disabled',
+                  }}
+                >
+                  /
+                </Typography>
+                <Typography
+                  component="span"
+                  sx={{
+                    fontSize: 14,
+                    fontWeight: 650,
+                    letterSpacing: '-0.02em',
+                    color: 'text.secondary',
+                  }}
+                >
+                  {totalValue}
+                </Typography>
+                <Typography
+                  component="span"
+                  sx={{
+                    fontSize: 11,
+                    fontWeight: 650,
+                    color: 'text.disabled',
+                  }}
+                >
+                  {totalUnit}
+                </Typography>
+              </Box>
+              {total > 0 && (
+                <Typography
+                  sx={{
+                    flexShrink: 0,
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: trafficColor,
+                  }}
+                >
+                  {progress}%
+                </Typography>
+              )}
+            </Box>
+            <Box
+              sx={{
+                height: 8,
+                borderRadius: 99,
+                overflow: 'hidden',
+                bgcolor: (theme) =>
+                  theme.palette.mode === 'light'
+                    ? 'rgba(59, 130, 246, 0.12)'
+                    : 'rgba(96, 165, 250, 0.16)',
+              }}
+            >
+              <Box
+                sx={{
+                  width: `${total > 0 ? progress : 0}%`,
+                  height: '100%',
+                  borderRadius: 99,
+                  background:
+                    'linear-gradient(90deg, #22c55e 0%, #3b82f6 42%, #f59e0b 72%, #ef4444 100%)',
+                  backgroundSize: `${Math.max(10000 / Math.max(progress, 1), 100)}% 100%`,
+                  transition: 'width 240ms ease',
+                }}
+              />
+            </Box>
+            {expire ? (
+              <Typography
+                title={t('shared.labels.expireTime')}
+                sx={{
+                  mt: 0.85,
+                  fontSize: 11,
+                  fontWeight: 600,
+                  color: 'text.secondary',
+                }}
+              >
+                {expire}
+              </Typography>
+            ) : null}
           </Box>
         ) : (
-          <Box sx={{ ...boxStyle, fontSize: 12, justifyContent: 'flex-end' }}>
+          <Box
+            sx={{
+              ...boxStyle,
+              fontSize: 12,
+              justifyContent: 'flex-end',
+              mt: 0.5,
+            }}
+          >
             <span title={t('shared.labels.updateTime')}>
               {parseExpire(updated)}
             </span>
           </Box>
         )}
-        <LinearProgress
-          variant="determinate"
-          value={progress}
-          style={{ opacity: total > 0 ? 1 : 0 }}
-        />
       </ProfileBox>
 
       <Menu

@@ -13,13 +13,16 @@ body {
 }
 
 :root {
-  --primary-main: #5b5c9d;
-  --text-primary: #1f1f1f;
+  --primary-main: #3b6fff;
+  --text-primary: #1a1d26;
   --selection-color: #f5f5f5;
   --scroller-color: #8c8c8c;
-  --background-color: #f5f5f5;
-  --background-color-alpha: rgba(24, 103, 192, 0.1);
-  --border-radius: 8px;
+  --background-color: #e8f0fe;
+  --background-color-alpha: rgba(59, 111, 255, 0.1);
+  --border-radius: 20px;
+  --sidebar-bg: #3b6fff;
+  --content-bg: #ffffff;
+  --card-bg: #f5f7fb;
 }
 
 ::selection {
@@ -28,12 +31,18 @@ body {
 }
 
 *::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 1px !important;
+  height: 1px !important;
+  background: transparent;
+}
+*::-webkit-scrollbar-track {
   background: transparent;
 }
 *::-webkit-scrollbar-thumb {
-  border-radius: 6px;
+  border-radius: 999px;
+  background-color: color-mix(in srgb, var(--scroller-color) 55%, transparent);
+}
+*::-webkit-scrollbar-thumb:hover {
   background-color: var(--scroller-color);
 }
 *::-webkit-scrollbar-corner {
@@ -49,6 +58,18 @@ body {
 //     background-color: rgba(18, 18, 18, 1);
 //   }
 // }
+
+.thin-scroll {
+  scrollbar-width: auto;
+}
+.thin-scroll::-webkit-scrollbar {
+  width: 1px !important;
+  height: 1px !important;
+}
+.thin-scroll::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background-color: color-mix(in srgb, var(--scroller-color) 55%, transparent);
+}
 
 .user-none {
   user-select: none;

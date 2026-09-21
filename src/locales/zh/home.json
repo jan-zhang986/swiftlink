@@ -24,7 +24,29 @@
       },
       "title": "首页设置"
     },
-    "title": "首页"
+    "title": "首页",
+    "greeting": "Hi, 同学 你好啊！",
+    "usingVpn": "正在使用 {{name}}",
+    "noVpn": "未连接",
+    "dashboard": {
+      "vpn": "VPN 网络",
+      "onlineTime": "在线时长",
+      "currentMode": "当前模式",
+      "currentServer": "当前服务器",
+      "captureSystem": "系统代理",
+      "captureTun": "虚拟网卡 TUN",
+      "toolbox": "工具箱",
+      "recommended": "推荐应用",
+      "allApps": "全部应用",
+      "tools": {
+        "diagnose": "网络诊断",
+        "security": "安全检测",
+        "trust": "信任设备",
+        "guest": "访客 Wi-Fi",
+        "staff": "员工 Wi-Fi",
+        "feedback": "问题反馈"
+      }
+    }
   },
   "components": {
     "proxyTun": {
@@ -57,7 +79,7 @@
         "autoLaunch": "开机自启",
         "runningMode": "运行模式",
         "lastCheckUpdate": "最后检查更新",
-        "vergeVersion": "Verge 版本"
+        "vergeVersion": "讯连版本"
       },
       "actions": {
         "settings": "设置"

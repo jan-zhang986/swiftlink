@@ -38,6 +38,13 @@ import parseUri from '@/utils/uri-parser'
 import { parseYamlSafe } from '@/utils/yaml'
 
 import {
+  compactActionBtnSx,
+  compactActionContainedSx,
+  compactDialogTitleSx,
+  compactEditorContentSx,
+  compactEditorPaperSx,
+} from './compact-editor-dialog'
+import {
   buildGroupedItems,
   type GroupedVirtualItem,
   GroupedVirtualList,
@@ -346,32 +353,38 @@ export const ProxiesEditorViewer = (props: Props) => {
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth="xl"
+      maxWidth="sm"
       fullWidth
       disableEnforceFocus={!visualization}
+      slotProps={{
+        paper: {
+          sx: compactEditorPaperSx,
+        },
+      }}
     >
-      <DialogTitle>
-        {
-          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-            {t('profiles.modals.proxiesEditor.title')}
-            <Box>
-              <Button
-                variant="contained"
-                size="small"
-                onClick={handleVisualizationToggle}
-              >
-                {visualization
-                  ? t('shared.editorModes.advanced')
-                  : t('shared.editorModes.visualization')}
-              </Button>
-            </Box>
-          </Box>
-        }
+      <DialogTitle
+        sx={{
+          ...compactDialogTitleSx,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 1,
+        }}
+      >
+        {t('profiles.modals.proxiesEditor.title')}
+        <Button
+          variant="contained"
+          size="small"
+          onClick={handleVisualizationToggle}
+          sx={compactActionContainedSx}
+        >
+          {visualization
+            ? t('shared.editorModes.advanced')
+            : t('shared.editorModes.visualization')}
+        </Button>
       </DialogTitle>
 
-      <DialogContent
-        sx={{ display: 'flex', width: 'auto', height: 'calc(100vh - 185px)' }}
-      >
+      <DialogContent sx={compactEditorContentSx}>
         {visualization ? (
           <>
             <List
@@ -477,12 +490,16 @@ export const ProxiesEditorViewer = (props: Props) => {
         )}
       </DialogContent>
 
-      <DialogActions>
-        <Button onClick={onClose} variant="outlined">
+      <DialogActions sx={{ px: 2, pb: 1.5, pt: 0.75, gap: 1 }}>
+        <Button onClick={onClose} variant="outlined" sx={compactActionBtnSx}>
           {t('shared.actions.cancel')}
         </Button>
 
-        <Button onClick={handleSave} variant="contained">
+        <Button
+          onClick={handleSave}
+          variant="contained"
+          sx={compactActionContainedSx}
+        >
           {t('shared.actions.save')}
         </Button>
       </DialogActions>

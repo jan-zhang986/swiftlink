@@ -3,55 +3,31 @@ import { alpha, Box, styled } from '@mui/material'
 export const ProfileBox = styled(Box)(
   ({ theme, 'aria-selected': selected }) => {
     const { mode, primary, text } = theme.palette
-    const key = `${mode}-${!!selected}`
-
-    const backgroundColor = mode === 'light' ? '#ffffff' : '#282A36'
-
-    const color = {
-      'light-true': text.secondary,
-      'light-false': text.secondary,
-      'dark-true': alpha(text.secondary, 0.65),
-      'dark-false': alpha(text.secondary, 0.65),
-    }[key]!
-
-    const h2color = {
-      'light-true': primary.main,
-      'light-false': text.primary,
-      'dark-true': primary.main,
-      'dark-false': text.primary,
-    }[key]!
-
-    const borderSelect = {
-      'light-true': {
-        borderLeft: `3px solid ${primary.main}`,
-        width: `calc(100% + 3px)`,
-        marginLeft: `-3px`,
-      },
-      'light-false': {
-        width: '100%',
-      },
-      'dark-true': {
-        borderLeft: `3px solid ${primary.main}`,
-        width: `calc(100% + 3px)`,
-        marginLeft: `-3px`,
-      },
-      'dark-false': {
-        width: '100%',
-      },
-    }[key]
+    const isSelected = !!selected
+    const isLight = mode === 'light'
 
     return {
       position: 'relative',
       display: 'block',
       cursor: 'pointer',
       textAlign: 'left',
-      padding: '8px 16px',
+      padding: '16px 18px 14px',
       boxSizing: 'border-box',
-      backgroundColor,
-      ...borderSelect,
-      borderRadius: '8px',
-      color,
-      '& h2': { color: h2color },
+      backgroundColor: isSelected
+        ? alpha(primary.main, isLight ? 0.1 : 0.2)
+        : isLight
+          ? '#ffffff'
+          : '#282A36',
+      borderRadius: '18px',
+      outline: isSelected
+        ? `2px solid ${primary.main}`
+        : '2px solid transparent',
+      outlineOffset: -2,
+      color: isLight ? text.secondary : alpha(text.secondary, 0.7),
+      transition: 'background-color 160ms ease, outline-color 160ms ease',
+      '& h2': {
+        color: isSelected ? primary.main : text.primary,
+      },
     }
   },
 )

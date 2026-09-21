@@ -8,7 +8,11 @@
         "update": "Güncelle"
       }
     },
-    "title": "Kurallar"
+    "forProfile": "Rules for {{name}}",
+    "hint": "This is the active routing table, matched from top to bottom. Add custom rules from a subscription’s “Edit Rules” menu.",
+    "count": "{{count}} rules",
+    "editCustom": "Edit custom rules",
+    "needProfile": "Enable a subscription first to edit custom rules"
   },
   "feedback": {
     "notifications": {

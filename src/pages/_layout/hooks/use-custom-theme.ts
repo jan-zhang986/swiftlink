@@ -164,15 +164,51 @@ export const useCustomTheme = () => {
             secondary: setting.secondary_text || dt.secondary_text,
           },
           background: {
-            paper: dt.background_color,
+            paper: mode === 'light' ? '#ffffff' : '#1a2030',
             default: dt.background_color,
           },
         },
+        shape: { borderRadius: 16 },
         shadows: Array(25).fill('none') as Shadows,
         typography: {
           fontFamily: setting.font_family
             ? `${setting.font_family}, ${dt.font_family}`
             : dt.font_family,
+          fontWeightRegular: 400,
+          fontWeightMedium: 510,
+          fontWeightBold: 590,
+          body1: {
+            letterSpacing: '-0.01em',
+          },
+          body2: {
+            letterSpacing: '-0.006em',
+          },
+          button: {
+            textTransform: 'none',
+            letterSpacing: '-0.01em',
+            fontWeight: 510,
+          },
+        },
+        components: {
+          MuiButton: {
+            styleOverrides: {
+              root: {
+                borderRadius: 12,
+                textTransform: 'none',
+                fontWeight: 600,
+              },
+            },
+          },
+          MuiPaper: {
+            styleOverrides: {
+              rounded: { borderRadius: 16 },
+            },
+          },
+          MuiDialog: {
+            styleOverrides: {
+              paper: { borderRadius: 20 },
+            },
+          },
         },
       })
     } catch (e) {
@@ -191,7 +227,7 @@ export const useCustomTheme = () => {
           success: { main: dt.success_color },
           text: { primary: dt.primary_text, secondary: dt.secondary_text },
           background: {
-            paper: dt.background_color,
+            paper: mode === 'light' ? '#ffffff' : '#1a2030',
             default: dt.background_color,
           },
         },
@@ -201,16 +237,27 @@ export const useCustomTheme = () => {
 
     const rootEle = document.documentElement
     if (rootEle) {
-      const backgroundColor = mode === 'light' ? '#ECECEC' : dt.background_color
+      const backgroundColor = dt.background_color
       const selectColor = mode === 'light' ? '#f5f5f5' : '#3E3E3E'
       const scrollColor = mode === 'light' ? '#90939980' : '#555555'
       const dividerColor =
-        mode === 'light' ? 'rgba(0, 0, 0, 0.06)' : 'rgba(255, 255, 255, 0.06)'
+        mode === 'light'
+          ? 'rgba(26, 29, 38, 0.06)'
+          : 'rgba(255, 255, 255, 0.08)'
+      const sidebarBg = mode === 'light' ? '#3B6FFF' : '#2A3A6E'
+      const contentBg = mode === 'light' ? '#ffffff' : '#1a2030'
       rootEle.style.setProperty('--divider-color', dividerColor)
       rootEle.style.setProperty('--background-color', backgroundColor)
       rootEle.style.setProperty('--selection-color', selectColor)
       rootEle.style.setProperty('--scroller-color', scrollColor)
       rootEle.style.setProperty('--primary-main', muiTheme.palette.primary.main)
+      rootEle.style.setProperty('--sidebar-bg', sidebarBg)
+      rootEle.style.setProperty('--content-bg', contentBg)
+      rootEle.style.setProperty(
+        '--card-bg',
+        mode === 'light' ? '#F5F7FB' : '#22283a',
+      )
+      rootEle.style.setProperty('--border-radius', '20px')
       rootEle.style.setProperty(
         '--background-color-alpha',
         alpha(muiTheme.palette.primary.main, 0.1),
@@ -274,7 +321,11 @@ export const useCustomTheme = () => {
 
         /* 背景图处理 */
         body {
-          font-family: ${dt.font_family};
+          font-family: ${setting.font_family ? `${setting.font_family}, ${dt.font_family}` : dt.font_family};
+          font-synthesis: none;
+          text-rendering: optimizeLegibility;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
           background-color: var(--background-color);
           ${
             hasUserBackground
@@ -290,14 +341,15 @@ export const useCustomTheme = () => {
           }
         }
 
-        /* 修复可能的白色边框 */
-        .MuiPaper-root {
-          border-color: var(--window-border-color) !important;
+        /* 窗口本体不要描边，避免套框 */
+        .layout.MuiPaper-root {
+          border: none !important;
         }
 
         /* 确保模态框和对话框也使用暗色主题 */
         .MuiDialog-paper {
-          background-color: ${mode === 'light' ? '#ffffff' : '#2E303D'} !important;
+          background-color: ${mode === 'light' ? '#ffffff' : '#1a2030'} !important;
+          border-radius: 20px !important;
         }
 
         /* 移除可能的白色点或线条 */

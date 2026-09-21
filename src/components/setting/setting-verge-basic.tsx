@@ -212,10 +212,11 @@ const SettingVergeBasic = ({ onError }: Props) => {
             value={startup_script}
             disabled
             disableUnderline
-            sx={{ width: 230 }}
+            sx={{ width: '100%' }}
             endAdornment={
               <>
                 <Button
+                  size="small"
                   onClick={async () => {
                     const selected = await open({
                       directory: false,
@@ -237,6 +238,7 @@ const SettingVergeBasic = ({ onError }: Props) => {
                 </Button>
                 {startup_script && (
                   <Button
+                    size="small"
                     onClick={async () => {
                       onChangeData({ startup_script: '' })
                       patchVerge({ startup_script: '' })

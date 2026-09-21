@@ -24,7 +24,29 @@
       },
       "title": "Home Settings"
     },
-    "title": "Home"
+    "title": "Home",
+    "greeting": "Hi!",
+    "usingVpn": "Using {{name}}",
+    "noVpn": "Not connected",
+    "dashboard": {
+      "vpn": "VPN Network",
+      "onlineTime": "Online time",
+      "currentMode": "Current mode",
+      "currentServer": "Current server",
+      "captureSystem": "System",
+      "captureTun": "TUN",
+      "toolbox": "Toolbox",
+      "recommended": "Recommended",
+      "allApps": "All apps",
+      "tools": {
+        "diagnose": "Network check",
+        "security": "Security check",
+        "trust": "Trusted devices",
+        "guest": "Guest Wi-Fi",
+        "staff": "Staff Wi-Fi",
+        "feedback": "Feedback"
+      }
+    }
   },
   "components": {
     "proxyTun": {

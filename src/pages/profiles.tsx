@@ -16,7 +16,7 @@ import {
   RefreshRounded,
   TextSnippetOutlined,
 } from '@mui/icons-material'
-import { Box, Button, Divider, Grid, IconButton, Stack } from '@mui/material'
+import { Box, Button, IconButton, Stack } from '@mui/material'
 import { TauriEvent } from '@tauri-apps/api/event'
 import { readText } from '@tauri-apps/plugin-clipboard-manager'
 import { readTextFile } from '@tauri-apps/plugin-fs'
@@ -34,6 +34,7 @@ import {
 } from '@/components/base'
 import { ProfileItem } from '@/components/profile/profile-item'
 import { ProfileMore } from '@/components/profile/profile-more'
+import { ProfileRulesPanel } from '@/components/profile/profile-rules-panel'
 import {
   ProfileViewer,
   type ProfileViewerRef,
@@ -53,11 +54,7 @@ import {
 import { subscribeVergeEvents } from '@/services/events'
 import { errorDetail, showNotice } from '@/services/notice-service'
 import { revalidateQuery, useQuery } from '@/services/query-client'
-import {
-  useLoadingCache,
-  useSetLoadingCache,
-  useThemeMode,
-} from '@/services/states'
+import { useLoadingCache, useSetLoadingCache } from '@/services/states'
 import { debugLog } from '@/utils/debug'
 import { isValidUrl } from '@/utils/network'
 
@@ -117,6 +114,7 @@ const ProfilePage = () => {
 
   const {
     profiles = {},
+    current: currentProfile,
     patchProfiles,
     mutateProfiles,
     error,
@@ -685,13 +683,6 @@ const ProfilePage = () => {
     }
   })
 
-  const mode = useThemeMode()
-  const isLight = mode === 'light'
-  const dividercolor = isLight
-    ? 'rgba(0, 0, 0, 0.06)'
-    : 'rgba(255, 255, 255, 0.06)'
-
-  // 卸载后不再执行尚未发送的切换意图。
   useEffect(() => {
     profilePageMountedRef.current = true
     return () => {
@@ -711,7 +702,17 @@ const ProfilePage = () => {
       title={t('profiles.page.title')}
       contentStyle={{ height: '100%' }}
       header={
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 0.25,
+            px: 0.5,
+            py: 0.25,
+            borderRadius: '999px',
+            bgcolor: 'background.paper',
+          }}
+        >
           {!batchMode ? (
             <>
               {/* Batch mode toggle button */}
@@ -818,167 +819,212 @@ const ProfilePage = () => {
         </Box>
       }
     >
-      <Stack
-        direction="row"
-        spacing={1}
-        sx={{
-          pt: 1,
-          mb: 0.5,
-          mx: '10px',
-          height: '36px',
-          display: 'flex',
-          alignItems: 'center',
-        }}
-      >
-        <BaseStyledTextField
-          value={url}
-          variant="outlined"
-          onChange={(e) => setUrl(e.target.value)}
-          onKeyDown={(event) => {
-            if (event.key !== 'Enter' || event.nativeEvent.isComposing) {
-              return
-            }
-            if (!url || disabled || loading) {
-              return
-            }
-            event.preventDefault()
-            void onImport()
-          }}
-          placeholder={t('profiles.page.importForm.placeholder')}
-          slotProps={{
-            input: {
-              sx: { pr: 1 },
-              endAdornment: !url ? (
-                <IconButton
-                  size="small"
-                  sx={{ p: 0.5 }}
-                  title={t('profiles.page.importForm.actions.paste')}
-                  onClick={onCopyLink}
-                >
-                  <ContentPasteRounded fontSize="inherit" />
-                </IconButton>
-              ) : (
-                <IconButton
-                  size="small"
-                  sx={{ p: 0.5 }}
-                  title={t('shared.actions.clear')}
-                  onClick={() => setUrl('')}
-                >
-                  <ClearRounded fontSize="inherit" />
-                </IconButton>
-              ),
-            },
-          }}
-        />
-        <Button
-          disabled={!url || disabled}
-          loading={loading}
-          variant="contained"
-          size="small"
-          sx={{ borderRadius: '6px' }}
-          onClick={onImport}
-        >
-          {t('profiles.page.actions.import')}
-        </Button>
-        <Button
-          variant="contained"
-          size="small"
-          sx={{ borderRadius: '6px' }}
-          onClick={() => viewerRef.current?.create()}
-        >
-          {t('shared.actions.new')}
-        </Button>
-      </Stack>
-
       <Box
         sx={{
-          pl: '10px',
-          pr: '10px',
-          height: 'calc(100% - 48px)',
-          overflowY: 'auto',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          px: { xs: 2.5, md: 4 },
+          pb: 2.5,
+          pt: 0.5,
+          boxSizing: 'border-box',
         }}
       >
-        <DragDropProvider
-          key={profileDndRevision}
-          sensors={[profilePointerSensor, KeyboardSensor]}
-          onDragEnd={onDragEnd}
+        <Box
+          sx={{
+            mb: 2,
+            p: 1.25,
+            borderRadius: '18px',
+            bgcolor: 'background.paper',
+          }}
+        >
+          <Stack direction="row" spacing={1.25} sx={{ alignItems: 'center' }}>
+            <BaseStyledTextField
+              value={url}
+              variant="outlined"
+              onChange={(e) => setUrl(e.target.value)}
+              onKeyDown={(event) => {
+                if (event.key !== 'Enter' || event.nativeEvent.isComposing) {
+                  return
+                }
+                if (!url || disabled || loading) {
+                  return
+                }
+                event.preventDefault()
+                void onImport()
+              }}
+              placeholder={t('profiles.page.importForm.placeholder')}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: '12px',
+                  bgcolor: 'action.hover',
+                  '& fieldset': { border: 'none' },
+                },
+              }}
+              slotProps={{
+                input: {
+                  sx: { pr: 1 },
+                  endAdornment: !url ? (
+                    <IconButton
+                      size="small"
+                      sx={{ p: 0.5 }}
+                      title={t('profiles.page.importForm.actions.paste')}
+                      onClick={onCopyLink}
+                    >
+                      <ContentPasteRounded fontSize="inherit" />
+                    </IconButton>
+                  ) : (
+                    <IconButton
+                      size="small"
+                      sx={{ p: 0.5 }}
+                      title={t('shared.actions.clear')}
+                      onClick={() => setUrl('')}
+                    >
+                      <ClearRounded fontSize="inherit" />
+                    </IconButton>
+                  ),
+                },
+              }}
+            />
+            <Button
+              disabled={!url || disabled}
+              loading={loading}
+              variant="contained"
+              size="small"
+              sx={{
+                borderRadius: '12px',
+                px: 2.25,
+                height: 40,
+                boxShadow: 'none',
+                textTransform: 'none',
+                fontWeight: 600,
+              }}
+              onClick={onImport}
+            >
+              {t('profiles.page.actions.import')}
+            </Button>
+            <Button
+              variant="outlined"
+              size="small"
+              sx={{
+                borderRadius: '12px',
+                px: 2.25,
+                height: 40,
+                textTransform: 'none',
+                fontWeight: 600,
+              }}
+              onClick={() => viewerRef.current?.create()}
+            >
+              {t('shared.actions.new')}
+            </Button>
+          </Stack>
+          <Box
+            sx={{
+              mt: 1.15,
+              display: 'grid',
+              gap: 1,
+              gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
+            }}
+          >
+            <ProfileMore
+              id="Merge"
+              onSave={async (prev, curr) => {
+                if (prev !== curr) {
+                  await onEnhance(false)
+                }
+              }}
+            />
+            <ProfileMore
+              id="Script"
+              logInfo={chainLogs['Script']}
+              onSave={async (prev, curr) => {
+                if (prev !== curr) {
+                  await onEnhance(false)
+                }
+              }}
+            />
+          </Box>
+        </Box>
+
+        <Box
+          sx={{
+            flex: 1,
+            minHeight: 0,
+            display: 'grid',
+            gap: 2,
+            gridTemplateColumns: {
+              xs: '1fr',
+              md: 'minmax(280px, 360px) minmax(0, 1fr)',
+            },
+            gridTemplateRows: {
+              xs: 'minmax(240px, 1fr) minmax(280px, 1fr)',
+              md: '1fr',
+            },
+          }}
         >
           <Box
             sx={{
-              mb: 1.5,
-              display: 'grid',
-              overflow: 'hidden',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-              gap: 1,
-              px: 0.5,
+              minHeight: 0,
+              minWidth: 0,
+              overflowY: 'auto',
+              pr: 0.25,
             }}
           >
-            {profileItems.map((item, index) => (
-              <ProfileItem
-                key={item.uid}
-                id={item.uid}
-                index={index}
-                selected={(switchTarget ?? profiles.current) === item.uid}
-                activating={
-                  activatings.includes(item.uid) ||
-                  visibleSwitchingProfile === item.uid
-                }
-                itemData={item}
-                timerUpdateRevision={timerUpdateRevisions.get(item.uid) ?? 0}
-                completedUpdateRevision={
-                  completedUpdateRevisions.get(item.uid) ?? 0
-                }
-                mutateProfiles={mutateProfiles}
-                onSelect={(f) => onSelect(item.uid, f)}
-                onEdit={() => viewerRef.current?.edit(item)}
-                onSave={async (prev, curr) => {
-                  if (prev !== curr && profiles.current === item.uid) {
-                    await onEnhance(false)
-                  }
+            <DragDropProvider
+              key={profileDndRevision}
+              sensors={[profilePointerSensor, KeyboardSensor]}
+              onDragEnd={onDragEnd}
+            >
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr',
+                  gap: 1.25,
                 }}
-                onDelete={() => {
-                  if (batchMode) {
-                    toggleProfileSelection(item.uid)
-                  } else {
-                    onDelete(item.uid)
-                  }
-                }}
-                batchMode={batchMode}
-                isSelected={selectedProfiles.has(item.uid)}
-                onSelectionChange={() => toggleProfileSelection(item.uid)}
-              />
-            ))}
+              >
+                {profileItems.map((item, index) => (
+                  <ProfileItem
+                    key={item.uid}
+                    id={item.uid}
+                    index={index}
+                    selected={(switchTarget ?? profiles.current) === item.uid}
+                    activating={
+                      activatings.includes(item.uid) ||
+                      visibleSwitchingProfile === item.uid
+                    }
+                    itemData={item}
+                    timerUpdateRevision={
+                      timerUpdateRevisions.get(item.uid) ?? 0
+                    }
+                    completedUpdateRevision={
+                      completedUpdateRevisions.get(item.uid) ?? 0
+                    }
+                    mutateProfiles={mutateProfiles}
+                    onSelect={(f) => onSelect(item.uid, f)}
+                    onEdit={() => viewerRef.current?.edit(item)}
+                    onSave={async (prev, curr) => {
+                      if (prev !== curr && profiles.current === item.uid) {
+                        await onEnhance(false)
+                      }
+                    }}
+                    onDelete={() => {
+                      if (batchMode) {
+                        toggleProfileSelection(item.uid)
+                      } else {
+                        onDelete(item.uid)
+                      }
+                    }}
+                    batchMode={batchMode}
+                    isSelected={selectedProfiles.has(item.uid)}
+                    onSelectionChange={() => toggleProfileSelection(item.uid)}
+                  />
+                ))}
+              </Box>
+            </DragDropProvider>
           </Box>
-        </DragDropProvider>
-        <Divider
-          variant="middle"
-          flexItem
-          sx={{ width: `calc(100% - 32px)`, borderColor: dividercolor }}
-        ></Divider>
-        <Box sx={{ mt: 1.5, mb: '10px' }}>
-          <Grid container spacing={{ xs: 1, lg: 1 }}>
-            <Grid size={{ xs: 12, sm: 6, md: 6, lg: 6 }}>
-              <ProfileMore
-                id="Merge"
-                onSave={async (prev, curr) => {
-                  if (prev !== curr) {
-                    await onEnhance(false)
-                  }
-                }}
-              />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 6, lg: 6 }}>
-              <ProfileMore
-                id="Script"
-                logInfo={chainLogs['Script']}
-                onSave={async (prev, curr) => {
-                  if (prev !== curr) {
-                    await onEnhance(false)
-                  }
-                }}
-              />
-            </Grid>
-          </Grid>
+          <Box sx={{ minHeight: 0, minWidth: 0 }}>
+            <ProfileRulesPanel current={currentProfile} />
+          </Box>
         </Box>
       </Box>
 

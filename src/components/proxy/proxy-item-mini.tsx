@@ -10,6 +10,9 @@ import {
   type ProxyGroupView,
   type ResolvedProxyMember,
 } from '@/types/proxy-view'
+import { splitProxyFlag } from '@/utils/proxy-flag'
+
+import { ProxyNodeFlag } from './proxy-node-flag'
 
 interface Props {
   group: ProxyGroupView
@@ -19,18 +22,17 @@ interface Props {
   onClick?: (member: ResolvedProxyMember) => void
 }
 
-// 多列布局
 export const ProxyItemMini = (props: Props) => {
   const { group, member, selected, showType = true, onClick } = props
   const details = memberDetails(member)
   const unresolved = member.kind === 'unresolved'
   const name = member.ref.name
+  const { label, iso } = splitProxyFlag(name)
   const type = unresolved ? member.ref.reason : (details?.type ?? '')
   const now = member.kind === 'group' ? member.group.now : undefined
 
   const { t } = useTranslation()
 
-  // -1/<=0 为不显示，-2 为 loading
   const { delayValue, isPreset, timeout, onDelay } = useProxyDelayState(
     member,
     group.name,
@@ -44,17 +46,16 @@ export const ProxyItemMini = (props: Props) => {
       onClick={unresolved ? undefined : () => onClick?.(member)}
       sx={[
         {
-          height: 56,
-          borderRadius: 1.5,
-          pl: 1.5,
-          pr: 1,
+          height: 64,
+          borderRadius: '16px',
+          px: 1.25,
           justifyContent: 'space-between',
           alignItems: 'center',
+          gap: 1,
         },
         ({ palette: { mode, primary } }) => {
-          const bgcolor = mode === 'light' ? '#ffffff' : '#24252f'
+          const bgcolor = mode === 'light' ? '#ffffff' : '#282A36'
           const showDelay = delayValue > 0
-          const selectColor = mode === 'light' ? primary.main : primary.light
 
           return {
             '&:hover .the-check': { display: !showDelay ? 'block' : 'none' },
@@ -68,34 +69,60 @@ export const ProxyItemMini = (props: Props) => {
             },
             '& .the-unpin': { filter: 'grayscale(1)' },
             '&.Mui-selected': {
-              width: `calc(100% + 3px)`,
-              marginLeft: `-3px`,
-              borderLeft: `3px solid ${selectColor}`,
               bgcolor:
                 mode === 'light'
-                  ? alpha(primary.main, 0.15)
-                  : alpha(primary.main, 0.35),
+                  ? alpha(primary.main, 0.1)
+                  : alpha(primary.main, 0.22),
+              outline: `2px solid ${primary.main}`,
+              outlineOffset: -2,
             },
             backgroundColor: bgcolor,
           }
         },
       ]}
     >
-      <Box title={`${name}\n${now ?? ''}`} sx={{ overflow: 'hidden' }}>
-        <Typography
-          variant="body2"
-          component="div"
-          color="text.primary"
-          sx={{
-            display: 'block',
-            textOverflow: 'ellipsis',
-            wordBreak: 'break-all',
-            overflow: 'hidden',
-            whiteSpace: 'nowrap',
-          }}
+      <ProxyNodeFlag name={name} />
+      <Box title={`${name}\n${now ?? ''}`} sx={{ overflow: 'hidden', flex: 1 }}>
+        <Box
+          sx={{ display: 'flex', alignItems: 'center', gap: 0.6, minWidth: 0 }}
         >
-          {name}
-        </Typography>
+          <Typography
+            variant="body2"
+            component="div"
+            color="text.primary"
+            sx={{
+              minWidth: 0,
+              fontWeight: 650,
+              fontSize: 13,
+              letterSpacing: '-0.02em',
+              textOverflow: 'ellipsis',
+              overflow: 'hidden',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {label}
+          </Typography>
+          {iso ? (
+            <Box
+              component="span"
+              sx={{
+                flexShrink: 0,
+                px: 0.6,
+                height: 16,
+                display: 'inline-flex',
+                alignItems: 'center',
+                borderRadius: '6px',
+                fontSize: 10,
+                fontWeight: 700,
+                letterSpacing: '0.04em',
+                color: 'primary.main',
+                bgcolor: (theme) => alpha(theme.palette.primary.main, 0.12),
+              }}
+            >
+              {iso}
+            </Box>
+          ) : null}
+        </Box>
 
         {showType && (
           <Box
@@ -114,7 +141,6 @@ export const ProxyItemMini = (props: Props) => {
                 sx={{
                   display: 'block',
                   textOverflow: 'ellipsis',
-                  wordBreak: 'break-all',
                   overflow: 'hidden',
                   whiteSpace: 'nowrap',
                   marginRight: '8px',
@@ -171,7 +197,7 @@ export const ProxyItemMini = (props: Props) => {
               void onDelay()
             }}
             sx={({ palette }) => ({
-              display: 'none', // hover 时显示
+              display: 'none',
               ':hover': { bgcolor: alpha(palette.primary.main, 0.15) },
             })}
           >
@@ -180,7 +206,6 @@ export const ProxyItemMini = (props: Props) => {
         )}
 
         {!unresolved && delayValue >= 0 && (
-          // 显示延迟
           <Widget
             className="the-delay"
             onClick={(e) => {
@@ -201,7 +226,6 @@ export const ProxyItemMini = (props: Props) => {
           delayValue !== -2 &&
           delayValue < 0 &&
           selected && (
-            // 展示已选择的 icon
             <CheckCircleOutlineRounded
               className="the-icon"
               sx={{ fontSize: 16, mr: 0.5, display: 'block' }}
@@ -209,7 +233,6 @@ export const ProxyItemMini = (props: Props) => {
           )}
       </Box>
       {!unresolved && group.fixed && group.fixed === name && (
-        // 展示 fixed 状态
         <span
           className={name === group.now ? 'the-pin' : 'the-unpin'}
           title={
@@ -229,21 +252,20 @@ const Widget = styled(Box)(({ theme: { typography } }) => ({
   padding: '2px 4px',
   fontSize: 14,
   fontFamily: typography.fontFamily,
-  borderRadius: '4px',
+  borderRadius: '8px',
 }))
 
 const TypeBox = styled(Box, {
   shouldForwardProp: (prop) => prop !== 'component',
-})<{ component?: React.ElementType }>(({ theme: { typography } }) => ({
+})<{ component?: React.ElementType }>(({ theme }) => ({
   display: 'inline-block',
-  border: '1px solid #ccc',
-  borderColor: 'text.secondary',
-  color: 'text.secondary',
-  borderRadius: 4,
+  color: theme.palette.text.secondary,
+  backgroundColor: alpha(theme.palette.text.primary, 0.06),
+  borderRadius: 8,
   fontSize: 10,
-  fontFamily: typography.fontFamily,
+  fontFamily: theme.typography.fontFamily,
   marginRight: '4px',
   marginTop: 'auto',
-  padding: '0 4px',
-  lineHeight: 1.5,
+  padding: '0 6px',
+  lineHeight: 1.6,
 }))

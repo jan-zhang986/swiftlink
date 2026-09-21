@@ -608,7 +608,28 @@ impl CoreManager {
                     .await
                 }
                 #[cfg(not(target_os = "windows"))]
-                self.start_core_by_service().await
+                {
+                    match self.start_core_by_service().await {
+                        Ok(()) => Ok(()),
+                        Err(error) => {
+                            let missing_core = error
+                                .downcast_ref::<crate::core::service::ServiceStartRefusal>()
+                                .is_some_and(|refusal| {
+                                    refusal.code
+                                        == clash_verge_service_ipc::ServiceErrorCode::InvalidInstallLocation as u16
+                                });
+                            if !missing_core {
+                                return Err(error);
+                            }
+                            logging!(
+                                warn,
+                                Type::Core,
+                                "service has no approved core; falling back to sidecar: {error:#}"
+                            );
+                            self.start_core_by_sidecar().await
+                        }
+                    }
+                }
             }
             StartupDecision::Sidecar => self.start_core_by_sidecar().await,
             StartupDecision::Wait => Ok(()),

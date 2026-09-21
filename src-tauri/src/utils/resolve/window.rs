@@ -9,12 +9,12 @@ use clash_verge_logging::logging;
 use clash_verge_logging::{Type, logging_error};
 
 const DARK_BACKGROUND_COLOR: Color = Color(46, 48, 61, 255); // #2E303D
-const LIGHT_BACKGROUND_COLOR: Color = Color(245, 245, 245, 255); // #F5F5F5
+const LIGHT_BACKGROUND_COLOR: Color = Color(255, 255, 255, 255); // #FFFFFF
 const DARK_BACKGROUND_HEX: &str = "#2E303D";
-const LIGHT_BACKGROUND_HEX: &str = "#F5F5F5";
+const LIGHT_BACKGROUND_HEX: &str = "#FFFFFF";
 
-const DEFAULT_WIDTH: f64 = 940.0;
-const DEFAULT_HEIGHT: f64 = 700.0;
+const DEFAULT_WIDTH: f64 = 840.0;
+const DEFAULT_HEIGHT: f64 = 600.0;
 
 const MINIMAL_WIDTH: f64 = 520.0;
 const MINIMAL_HEIGHT: f64 = 520.0;
@@ -81,7 +81,7 @@ pub async fn build_new_window() -> Result<WebviewWindow, String> {
         "main", /* the unique window label */
         tauri::WebviewUrl::App(start_page.into()),
     )
-    .title("Clash Verge")
+    .title("SwiftLink")
     .center()
     .decorations(DEFAULT_DECORATIONS)
     .fullscreen(false)
@@ -104,6 +104,14 @@ pub async fn build_new_window() -> Result<WebviewWindow, String> {
     }
 
     builder = builder.background_color(background_color);
+
+    #[cfg(target_os = "macos")]
+    {
+        builder = builder
+            .hidden_title(true)
+            .title_bar_style(tauri::TitleBarStyle::Overlay)
+            .traffic_light_position(tauri::LogicalPosition::new(10.0, 12.0));
+    }
 
     match builder.build() {
         Ok(window) => {

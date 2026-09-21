@@ -817,11 +817,22 @@ fn install_service() -> Result<()> {
     macos_service_tool_path(&binary_path)?;
     let install_path = macos_service_tool_path(&install_path)?;
 
-    // clash_verge_i18n::sync_locale(Config::verge().await.latest_arc().language.as_deref());
-
     let gid = tauri_plugin_clash_verge_sysinfo::current_gid();
     let prompt = clash_verge_i18n::t!("service.adminInstallPrompt");
-    let shell = macos_install_shell(&install_path, gid);
+    let mut shell = macos_install_shell(&install_path, gid);
+    for core_name in crate::config::IVerge::VALID_CLASH_CORES {
+        let core = service_core_path(core_name, "")?;
+        if !core.is_file() {
+            continue;
+        }
+        let digest = sha256_hex(&core)?;
+        shell.push_str(" && ");
+        shell.push_str(&shell_single_quote(&install_path.to_string_lossy()));
+        shell.push_str(" --install-core ");
+        shell.push_str(&shell_single_quote(&core.to_string_lossy()));
+        shell.push_str(" --sha256 ");
+        shell.push_str(&shell_single_quote(&digest));
+    }
     let shell = escape_osascript_double_quoted_string(&shell);
     let command = format!(r#"do shell script "{shell}" with administrator privileges with prompt "{prompt}""#);
 
@@ -1088,7 +1099,7 @@ pub(super) async fn stage_runtime_by_service(config_file: &Path) -> Result<Stage
 }
 
 #[derive(Debug)]
-pub(super) struct ServiceStartRefusal {
+pub(crate) struct ServiceStartRefusal {
     pub code: u16,
     pub core_path: String,
     pub message: String,
@@ -1185,7 +1196,29 @@ pub(super) async fn run_core_by_service(config_file: &Path) -> Result<()> {
     }
 
     logging!(info, Type::Service, "服务已运行且版本匹配，直接使用");
-    start_with_existing_service(config_file).await
+    match start_with_existing_service(config_file).await {
+        Ok(()) => Ok(()),
+        Err(error) => {
+            let missing_approved_core = error
+                .downcast_ref::<ServiceStartRefusal>()
+                .is_some_and(|refusal| refusal.code == ServiceErrorCode::InvalidInstallLocation as u16);
+            if !missing_approved_core {
+                return Err(error);
+            }
+
+            logging!(
+                warn,
+                Type::Service,
+                "service is ready but has no approved core; staging it: {error:#}"
+            );
+            let clash_core = Config::verge().await.latest_arc().get_valid_clash_core();
+            let bin_ext = if cfg!(windows) { ".exe" } else { "" };
+            let bin_path = service_core_path(&clash_core, bin_ext)?;
+            stage_approved_core(&bin_path)
+                .with_context(|| format!("failed to stage an administrator-approved copy of {clash_core}"))?;
+            start_with_existing_service(config_file).await
+        }
+    }
 }
 
 async fn capture_generation_before<F, Fut, T>(generation: &AtomicU64, operation: F) -> (u64, T)

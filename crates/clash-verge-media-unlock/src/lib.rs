@@ -40,20 +40,7 @@ enum UnlockCheck {
 }
 
 impl UnlockCheck {
-    const ALL: &[Self] = &[
-        Self::BilibiliChinaMainland,
-        Self::BilibiliHkMcTw,
-        Self::ChatGptWeb,
-        Self::Claude,
-        Self::Gemini,
-        Self::YouTubePremium,
-        Self::BahamutAnime,
-        Self::Netflix,
-        Self::DisneyPlus,
-        Self::PrimeVideo,
-        Self::Spotify,
-        Self::TikTok,
-    ];
+    const ALL: &[Self] = &[Self::ChatGptWeb, Self::Claude, Self::Gemini, Self::YouTubePremium];
 
     fn from_name(name: &str) -> Option<Self> {
         Self::ALL.iter().copied().find(|check| check.name() == name)

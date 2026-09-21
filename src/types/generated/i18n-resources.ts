@@ -170,6 +170,27 @@ export interface TranslationResources {
           proxyMode: string
           trafficStats: string
         }
+        dashboard: {
+          allApps: string
+          captureSystem: string
+          captureTun: string
+          currentMode: string
+          currentServer: string
+          onlineTime: string
+          recommended: string
+          toolbox: string
+          tools: {
+            diagnose: string
+            feedback: string
+            guest: string
+            security: string
+            staff: string
+            trust: string
+          }
+          vpn: string
+        }
+        greeting: string
+        noVpn: string
         settings: {
           cards: {
             clashInfo: string
@@ -190,6 +211,7 @@ export interface TranslationResources {
           manual: string
           settings: string
         }
+        usingVpn: string
       }
     }
     layout: {
@@ -665,6 +687,11 @@ export interface TranslationResources {
         }
       }
       page: {
+        count: string
+        editCustom: string
+        forProfile: string
+        hint: string
+        needProfile: string
         provider: {
           actions: {
             update: string
@@ -673,7 +700,6 @@ export interface TranslationResources {
           dialogTitle: string
           trigger: string
         }
-        title: string
       }
     }
     settings: {

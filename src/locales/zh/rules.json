@@ -8,7 +8,11 @@
         "update": "更新"
       }
     },
-    "title": "规则"
+    "forProfile": "Rules for {{name}}",
+    "hint": "当前订阅生效的分流表，从上到下匹配。",
+    "count": "{{count}} 条",
+    "editCustom": "编辑自定义规则",
+    "needProfile": "请先启用一个订阅，才能编辑自定义规则"
   },
   "feedback": {
     "notifications": {

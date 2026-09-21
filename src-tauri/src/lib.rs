@@ -99,9 +99,85 @@ mod app_init {
         {
             auto_start_plugin_builder = auto_start_plugin_builder
                 .macos_launcher(MacosLauncher::LaunchAgent)
-                .app_name(&app.config().identifier);
+                .app_name("SwiftLink");
         }
         app.handle().plugin(auto_start_plugin_builder.build())?;
+        Ok(())
+    }
+
+    /// About/Hide/Quit default to the Cargo package name; override them to SwiftLink.
+    #[cfg(target_os = "macos")]
+    pub fn setup_native_menu(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
+        use tauri::menu::{AboutMetadata, HELP_SUBMENU_ID, Menu, PredefinedMenuItem, Submenu, WINDOW_SUBMENU_ID};
+
+        const APP_NAME: &str = "SwiftLink";
+        let handle = app.handle();
+        let about_metadata = AboutMetadata {
+            name: Some(APP_NAME.into()),
+            version: Some(env!("CARGO_PKG_VERSION").into()),
+            copyright: handle.config().bundle.copyright.clone(),
+            authors: handle.config().bundle.publisher.clone().map(|p| vec![p]),
+            ..Default::default()
+        };
+
+        let window_menu = Submenu::with_id_and_items(
+            handle,
+            WINDOW_SUBMENU_ID,
+            "Window",
+            true,
+            &[
+                &PredefinedMenuItem::minimize(handle, None)?,
+                &PredefinedMenuItem::maximize(handle, None)?,
+                &PredefinedMenuItem::separator(handle)?,
+                &PredefinedMenuItem::close_window(handle, None)?,
+            ],
+        )?;
+        let help_menu = Submenu::with_id_and_items(handle, HELP_SUBMENU_ID, "Help", true, &[])?;
+        let menu = Menu::with_items(
+            handle,
+            &[
+                &Submenu::with_items(
+                    handle,
+                    APP_NAME,
+                    true,
+                    &[
+                        &PredefinedMenuItem::about(handle, Some("About SwiftLink"), Some(about_metadata))?,
+                        &PredefinedMenuItem::separator(handle)?,
+                        &PredefinedMenuItem::services(handle, None)?,
+                        &PredefinedMenuItem::separator(handle)?,
+                        &PredefinedMenuItem::hide(handle, Some("Hide SwiftLink"))?,
+                        &PredefinedMenuItem::hide_others(handle, None)?,
+                        &PredefinedMenuItem::show_all(handle, None)?,
+                        &PredefinedMenuItem::separator(handle)?,
+                        &PredefinedMenuItem::quit(handle, Some("Quit SwiftLink"))?,
+                    ],
+                )?,
+                &Submenu::with_items(
+                    handle,
+                    "File",
+                    true,
+                    &[&PredefinedMenuItem::close_window(handle, None)?],
+                )?,
+                &Submenu::with_items(
+                    handle,
+                    "Edit",
+                    true,
+                    &[
+                        &PredefinedMenuItem::undo(handle, None)?,
+                        &PredefinedMenuItem::redo(handle, None)?,
+                        &PredefinedMenuItem::separator(handle)?,
+                        &PredefinedMenuItem::cut(handle, None)?,
+                        &PredefinedMenuItem::copy(handle, None)?,
+                        &PredefinedMenuItem::paste(handle, None)?,
+                        &PredefinedMenuItem::select_all(handle, None)?,
+                    ],
+                )?,
+                &Submenu::with_items(handle, "View", true, &[&PredefinedMenuItem::fullscreen(handle, None)?])?,
+                &window_menu,
+                &help_menu,
+            ],
+        )?;
+        handle.set_menu(menu)?;
         Ok(())
     }
 
@@ -292,6 +368,11 @@ pub fn run() -> std::process::ExitCode {
                     logging!(error, Type::Setup, "Failed to setup autostart: {}", e);
                 }
 
+                #[cfg(target_os = "macos")]
+                if let Err(e) = app_init::setup_native_menu(app) {
+                    logging!(error, Type::Setup, "Failed to setup native menu: {}", e);
+                }
+
                 app_init::setup_deep_links(app);
 
                 if let Err(e) = app_init::setup_window_state(app) {
@@ -345,7 +426,7 @@ pub fn run() -> std::process::ExitCode {
 
             #[cfg(target_os = "macos")]
             if let Some(window) = _app_handle.get_webview_window("main") {
-                let _ = window.set_title("Clash Verge");
+                let _ = window.set_title("SwiftLink");
             }
         }
 

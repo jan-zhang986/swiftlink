@@ -50,6 +50,16 @@ import { MONACO_FONT_FAMILY } from '@/utils/font-family'
 import { parseYamlSafe } from '@/utils/yaml'
 
 import {
+  compactActionBtnSx,
+  compactActionContainedSx,
+  compactDialogTitleSx,
+  compactEditorContentSx,
+  compactEditorPaperSx,
+  compactFieldInputSx,
+  compactSelectPopupIcon,
+  compactSelectSlotProps,
+} from './compact-editor-dialog'
+import {
   buildGroupedItems,
   type GroupedVirtualItem,
   GroupedVirtualList,
@@ -490,32 +500,38 @@ export const GroupsEditorViewer = (props: Props) => {
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth="xl"
+      maxWidth="sm"
       fullWidth
       disableEnforceFocus={!visualization}
+      slotProps={{
+        paper: {
+          sx: compactEditorPaperSx,
+        },
+      }}
     >
-      <DialogTitle>
-        {
-          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-            {t('profiles.modals.groupsEditor.title')}
-            <Box>
-              <Button
-                variant="contained"
-                size="small"
-                onClick={handleVisualizationToggle}
-              >
-                {visualization
-                  ? t('shared.editorModes.advanced')
-                  : t('shared.editorModes.visualization')}
-              </Button>
-            </Box>
-          </Box>
-        }
+      <DialogTitle
+        sx={{
+          ...compactDialogTitleSx,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 1,
+        }}
+      >
+        {t('profiles.modals.groupsEditor.title')}
+        <Button
+          variant="contained"
+          size="small"
+          onClick={handleVisualizationToggle}
+          sx={compactActionContainedSx}
+        >
+          {visualization
+            ? t('shared.editorModes.advanced')
+            : t('shared.editorModes.visualization')}
+        </Button>
       </DialogTitle>
 
-      <DialogContent
-        sx={{ display: 'flex', width: 'auto', height: 'calc(100vh - 185px)' }}
-      >
+      <DialogContent sx={compactEditorContentSx}>
         {visualization ? (
           <>
             <List
@@ -563,7 +579,11 @@ export const GroupsEditorViewer = (props: Props) => {
                           )
                         }}
                         onChange={(_, value) => value && field.onChange(value)}
-                        renderInput={(params) => <TextField {...params} />}
+                        popupIcon={compactSelectPopupIcon}
+                        slotProps={compactSelectSlotProps}
+                        renderInput={(params) => (
+                          <TextField {...params} sx={compactFieldInputSx} />
+                        )}
                       />
                     </Item>
                   )}
@@ -623,7 +643,11 @@ export const GroupsEditorViewer = (props: Props) => {
                         options={proxyPolicyList}
                         disableCloseOnSelect
                         onChange={(_, value) => value && field.onChange(value)}
-                        renderInput={(params) => <TextField {...params} />}
+                        popupIcon={compactSelectPopupIcon}
+                        slotProps={compactSelectSlotProps}
+                        renderInput={(params) => (
+                          <TextField {...params} sx={compactFieldInputSx} />
+                        )}
                         renderOption={(props, option) => {
                           const { key, ...optionProps } = props
                           return (
@@ -658,7 +682,11 @@ export const GroupsEditorViewer = (props: Props) => {
                         options={proxyProviderList}
                         disableCloseOnSelect
                         onChange={(_, value) => value && field.onChange(value)}
-                        renderInput={(params) => <TextField {...params} />}
+                        popupIcon={compactSelectPopupIcon}
+                        slotProps={compactSelectSlotProps}
+                        renderInput={(params) => (
+                          <TextField {...params} sx={compactFieldInputSx} />
+                        )}
                       />
                     </Item>
                   )}
@@ -804,7 +832,11 @@ export const GroupsEditorViewer = (props: Props) => {
                         options={interfaceNameList}
                         value={field.value}
                         onChange={(_, value) => value && field.onChange(value)}
-                        renderInput={(params) => <TextField {...params} />}
+                        popupIcon={compactSelectPopupIcon}
+                        slotProps={compactSelectSlotProps}
+                        renderInput={(params) => (
+                          <TextField {...params} sx={compactFieldInputSx} />
+                        )}
                       />
                     </Item>
                   )}
@@ -918,7 +950,11 @@ export const GroupsEditorViewer = (props: Props) => {
                         onChange={(_, value) => {
                           field.onChange(value.join('|'))
                         }}
-                        renderInput={(params) => <TextField {...params} />}
+                        popupIcon={compactSelectPopupIcon}
+                        slotProps={compactSelectSlotProps}
+                        renderInput={(params) => (
+                          <TextField {...params} sx={compactFieldInputSx} />
+                        )}
                       />
                     </Item>
                   )}
@@ -1103,12 +1139,16 @@ export const GroupsEditorViewer = (props: Props) => {
         )}
       </DialogContent>
 
-      <DialogActions>
-        <Button onClick={onClose} variant="outlined">
+      <DialogActions sx={{ px: 2, pb: 1.5, pt: 0.75, gap: 1 }}>
+        <Button onClick={onClose} variant="outlined" sx={compactActionBtnSx}>
           {t('shared.actions.cancel')}
         </Button>
 
-        <Button onClick={handleSave} variant="contained">
+        <Button
+          onClick={handleSave}
+          variant="contained"
+          sx={compactActionContainedSx}
+        >
           {t('shared.actions.save')}
         </Button>
       </DialogActions>
