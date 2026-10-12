@@ -135,6 +135,7 @@ fn nsis_language_id(app_language: &str) -> &'static str {
 
 impl SilentUpdater {
     /// Cached upstream installers are discarded; this fork does not auto-update.
+    #[allow(clippy::unused_async)]
     pub async fn try_install_on_startup(&self, _app_handle: &tauri::AppHandle) -> bool {
         Self::delete_cache();
         false
@@ -247,6 +248,7 @@ impl SilentUpdater {
 }
 
 impl SilentUpdater {
+    #[allow(clippy::unused_async)]
     async fn check_and_download(&self, _app_handle: &tauri::AppHandle) -> Result<()> {
         logging!(debug, Type::System, "Silent update skipped: fork updates are disabled");
         Ok(())
